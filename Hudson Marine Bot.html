@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hudson Marine Bot</title>
+  <meta name="description" content="Hudson Marine Bot — tide, current & weather quick-check for the Hudson River." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --hudson-950: #050b15;
+      --hudson-900: #07111f;
+      --hudson-800: #0b1a2c;
+      --hudson-700: #0d1f2f;
+      --hudson-600: #14304a;
+
+      --cove-700: #0369a1;
+      --cove-600: #0891b2;
+      --cove-500: #0ea5e9;
+      --cove-400: #38bdf8;
+      --cove-300: #7dd3fc;
+      --cove-200: #a0c8e0;
+      --cove-100: #cce7f5;
+      --cove-50:  #e0f0ff;
+
+      --foam-50:  #ffffff;
+      --slate-500: #2a5068;
+      --slate-400: #4a7a94;
+      --slate-300: #5a8ea8;
+      --slate-200: #7cb8d4;
+
+      --sunset-500: #fb923c;
+      --coral-500:  #f87171;
+      --reef-500:   #4ade80;
+
+      /* — Dark mode surfaces (default) — */
+      --bg-app:          var(--hudson-900);
+      --bg-card:         rgba(255,255,255,0.04);
+      --bg-input:        rgba(255,255,255,0.06);
+      --bg-chip:         rgba(255,255,255,0.05);
+      --bg-overlay-soft: rgba(0,0,0,0.25);
+      --bg-select-opt:   var(--hudson-700);
+
+      --fg-strong:    var(--foam-50);
+      --fg-default:   var(--cove-100);
+      --fg-secondary: var(--cove-200);
+      --fg-muted:     var(--slate-400);
+      --fg-link:      var(--cove-400);
+
+      --border-soft:    rgba(255,255,255,0.04);
+      --border-default: rgba(255,255,255,0.08);
+      --border-strong:  rgba(255,255,255,0.12);
+      --border-focus:   var(--cove-400);
+
+      --signal-flood: var(--cove-400);
+      --signal-ebb:   var(--sunset-500);
+      --signal-slack: var(--reef-500);
+      --signal-error: var(--coral-500);
+
+      --signal-flood-fill: rgba(56,189,248,0.15);
+      --signal-flood-edge: rgba(56,189,248,0.25);
+      --signal-ebb-fill:   rgba(251,146,60,0.15);
+      --signal-ebb-edge:   rgba(251,146,60,0.20);
+      --signal-slack-fill: rgba(74,222,128,0.12);
+      --signal-slack-edge: rgba(74,222,128,0.18);
+
+      --grad-cove: linear-gradient(90deg, var(--cove-700), var(--cove-600));
+
+      --font-sans:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-display: 'Fraunces', 'Inter', serif;
+      --font-mono:    'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --t-h1:      700 1.75rem/1.15 var(--font-sans);
+      --t-h3:      600 1.05rem/1.25 var(--font-sans);
+      --t-body:    400 0.95rem/1.5  var(--font-sans);
+      --t-input:   400 0.9rem/1.3   var(--font-sans);
+      --t-label:   500 0.7rem/1.2   var(--font-sans);
+      --t-section: 600 0.68rem/1.2  var(--font-sans);
+      --t-badge:   600 0.78rem/1    var(--font-sans);
+      --t-button:  600 0.95rem/1    var(--font-sans);
+      --t-mono-sm: 400 0.78rem/1.6  var(--font-mono);
+
+      --track-tight:   -0.5px;
+      --track-wide:    0.4px;
+      --track-widest:  0.8px;
+
+      --space-6: 24px;
+      --r-sm: 10px; --r-md: 12px; --r-lg: 14px; --r-xl: 18px; --r-pill: 99px;
+
+      --shadow-submit: 0 6px 20px rgba(8,145,178,0.45);
+      --blur-glass: blur(16px);
+      --ease-out: cubic-bezier(0.2,0,0,1);
+      --dur-fast: 0.15s; --dur-base: 0.2s; --dur-slow: 0.3s;
+      --w-content: 620px;
+    }
+
+    /* ── Light mode overrides ── */
+    [data-theme="light"] {
+      --bg-app:          #eaf4fb;
+      --bg-card:         rgba(255,255,255,0.88);
+      --bg-input:        rgba(0,0,0,0.045);
+      --bg-chip:         rgba(0,0,0,0.04);
+      --bg-overlay-soft: rgba(255,255,255,0.7);
+      --bg-select-opt:   #ffffff;
+
+      --fg-strong:    #0a1520;
+      --fg-default:   #0d2233;
+      --fg-secondary: #1a4060;
+      --fg-muted:     #4a7a94;
+      --fg-link:      var(--cove-700);
+
+      --border-soft:    rgba(0,0,0,0.05);
+      --border-default: rgba(0,0,0,0.09);
+      --border-strong:  rgba(0,0,0,0.14);
+      --border-focus:   var(--cove-600);
+
+      --signal-flood-fill: rgba(3,105,161,0.1);
+      --signal-flood-edge: rgba(3,105,161,0.22);
+      --signal-ebb-fill:   rgba(194,65,12,0.1);
+      --signal-ebb-edge:   rgba(194,65,12,0.18);
+      --signal-slack-fill: rgba(22,163,74,0.1);
+      --signal-slack-edge: rgba(22,163,74,0.18);
+
+      --shadow-submit: 0 6px 20px rgba(3,105,161,0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg-app);
+      color: var(--fg-default);
+      font: var(--t-body);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base), box-shadow var(--dur-base);
+    }
+    .theme-toggle:hover {
+      background: var(--bg-chip);
+      border-color: var(--border-strong);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .theme-icon { font-size: 1rem; line-height: 1; transition: opacity var(--dur-base), transform var(--dur-base); }
+    .theme-icon-sun  { display: none; }
+    .theme-icon-moon { display: block; }
+    [data-theme="light"] .theme-icon-sun  { display: block; }
+    [data-theme="light"] .theme-icon-moon { display: none; }
+    .theme-label {
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+      width: 100%;
+      max-width: var(--w-content);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font: var(--t-h1);
+      color: var(--fg-strong);
+      letter-spacing: var(--track-tight);
+    }
+    .station-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--signal-flood-fill);
+      border: 1px solid var(--signal-flood-edge);
+      border-radius: var(--r-pill);
+      padding: 3px 12px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--cove-300);
+      letter-spacing: var(--track-wide);
+      margin-bottom: 6px;
+      transition: background var(--dur-base), border-color var(--dur-base);
+    }
+    [data-theme="light"] .station-pill { color: var(--cove-700); }
+
+    /* ── Station switcher ── */
+    .station-switcher {
+      display: inline-flex;
+      gap: 4px;
+      margin-bottom: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-pill);
+      padding: 3px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+    }
+    .station-btn {
+      padding: 4px 13px;
+      border-radius: var(--r-pill);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--fg-muted);
+      font: 500 0.7rem var(--font-sans);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: all var(--dur-base);
+      white-space: nowrap;
+    }
+    .station-btn.active {
+      background: var(--signal-flood-fill);
+      color: var(--cove-300);
+      border-color: var(--signal-flood-edge);
+    }
+    [data-theme="light"] .station-btn.active { color: var(--cove-700); }
+    .station-btn:not(.active):hover {
+      color: var(--fg-secondary);
+      background: rgba(56,189,248,0.06);
+    }
+    .station-meta {
+      font-size: 0.68rem;
+      color: var(--fg-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .station-meta a {
+      color: var(--fg-link);
+      text-decoration: none;
+      opacity: 0.85;
+    }
+    .station-meta a:hover { opacity: 1; text-decoration: underline; }
+
+    .live-clock {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: var(--w-content);
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-xl);
+      padding: var(--space-6);
+      margin-bottom: 14px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base);
+    }
+
+    /* ── Form ── */
+    .form-section-label {
+      font: var(--t-section);
+      text-transform: uppercase;
+      letter-spacing: var(--track-widest);
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .form-grid-date {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .form-grid-time {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font: var(--t-label);
+      color: var(--slate-300);
+      letter-spacing: 0.3px;
+      margin-bottom: 5px;
+    }
+    [data-theme="light"] .form-group label { color: var(--slate-400); }
+
+    select {
+      width: 100%;
+      padding: 11px 30px 11px 13px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-sm);
+      color: var(--fg-strong);
+      font: var(--t-input);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%235a8ea8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      transition: border-color var(--dur-base), background-color var(--dur-base);
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      background-color: rgba(56,189,248,0.08);
+    }
+    [data-theme="light"] select:focus { background-color: rgba(3,105,161,0.06); }
+    select option { background: var(--bg-select-opt); color: var(--fg-strong); }
+
+    .btn-row { display: flex; gap: 10px; }
+    .btn-now {
+      padding: 13px 18px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-md);
+      color: var(--fg-secondary);
+      font: 500 0.85rem var(--font-sans);
+      cursor: pointer;
+      transition: all var(--dur-base);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    [data-theme="light"] .btn-now { background: rgba(0,0,0,0.04); }
+    .btn-now:hover { background: rgba(255,255,255,0.11); color: var(--fg-strong); }
+    [data-theme="light"] .btn-now:hover { background: rgba(0,0,0,0.08); }
+
+    .btn-submit {
+      flex: 1;
+      padding: 13px;
+      background: var(--grad-cove);
+      border: none;
+      border-radius: var(--r-md);
+      color: #fff;
+      font: var(--t-button);
+      cursor: pointer;
+      transition: all var(--dur-base);
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-submit);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Results ── */
+    .results { width: 100%; max-width: var(--w-content); }
+
+    .stat-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .stat-chip {
+      flex: 1;
+      background: var(--bg-chip);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-lg);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background var(--dur-base);
+    }
+    .stat-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+    .stat-value { font: var(--t-h3); color: var(--fg-strong); }
+    .stat-label {
+      font: var(--t-label);
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-top: 2px;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font: var(--t-section);
+      text-transform: uppercase;
+      letter-spacing: var(--track-widest);
+      color: var(--fg-muted);
+      margin-bottom: 12px;
+    }
+
+    .currents-table { width: 100%; border-collapse: collapse; }
+    .currents-table thead tr { border-bottom: 1px solid var(--border-soft); }
+    .currents-table th {
+      text-align: left;
+      font: 600 0.68rem var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--fg-muted);
+      padding: 0 14px 10px;
+    }
+    .currents-table th.col-vel { text-align: right; }
+    .currents-table td {
+      padding: 13px 14px;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+    .currents-table tr:last-child td { border-bottom: none; }
+    .currents-table tbody tr { transition: background var(--dur-fast); }
+    .currents-table tbody tr:hover { background: rgba(56,189,248,0.04); }
+    .currents-table tbody tr.past { opacity: 0.45; }
+
+    .time-cell { white-space: nowrap; }
+    .time-date { color: var(--fg-muted); font-size: 0.8rem; margin-right: 5px; }
+    .time-hour { color: var(--slate-200); font-size: 0.88rem; }
+    [data-theme="light"] .time-hour { color: var(--fg-default); }
+
+    .type-badge {
+      display: inline-flex; align-items: center;
+      gap: 5px; padding: 4px 11px;
+      border-radius: var(--r-pill);
+      font: var(--t-badge);
+    }
+    .badge-flood { background: var(--signal-flood-fill); color: var(--signal-flood); border: 1px solid var(--signal-flood-edge); }
+    .badge-ebb   { background: var(--signal-ebb-fill);   color: var(--signal-ebb);   border: 1px solid var(--signal-ebb-edge); }
+    .badge-slack { background: var(--signal-slack-fill); color: var(--signal-slack); border: 1px solid var(--signal-slack-edge); }
+    [data-theme="light"] .badge-flood { color: var(--cove-700); }
+    [data-theme="light"] .badge-ebb   { color: #c2410c; }
+    [data-theme="light"] .badge-slack { color: #16a34a; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    .col-vel { text-align: right; }
+    .vel-value { font-weight: 600; font-size: 0.95rem; color: var(--fg-strong); }
+    .vel-unit  { font-size: 0.72rem; color: var(--fg-muted); margin-left: 3px; }
+    .vel-dash  { color: var(--slate-500); font-size: 1rem; }
+
+    /* ── Copy bar ── */
+    .copy-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      background: var(--bg-overlay-soft);
+    }
+    .copy-preview {
+      flex: 1;
+      padding: 12px 14px;
+      font: var(--t-mono-sm);
+      color: var(--slate-200);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    [data-theme="light"] .copy-preview { color: var(--fg-default); }
+    .btn-copy {
+      padding: 0 18px;
+      background: var(--signal-flood-fill);
+      border: none;
+      border-left: 1px solid var(--border-default);
+      color: var(--fg-link);
+      font: 600 0.8rem var(--font-sans);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all var(--dur-base);
+    }
+    .btn-copy:hover { background: rgba(56,189,248,0.22); }
+    .btn-copy.copied { background: rgba(74,222,128,0.18); color: var(--reef-500); }
+    [data-theme="light"] .btn-copy.copied { color: #16a34a; }
+
+    /* ── Loading / states ── */
+    .loading-box {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 36px; gap: 14px;
+      color: var(--fg-muted); font-size: 0.9rem;
+    }
+    .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid rgba(56,189,248,0.15);
+      border-top-color: var(--cove-400);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box { padding: 20px; text-align: center; color: var(--signal-error); font-size: 0.88rem; }
+    .no-events-box { padding: 28px; text-align: center; color: var(--fg-muted); font-size: 0.88rem; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { opacity: 1; animation: fadeUp var(--dur-slow) var(--ease-out); }
+
+    /* ── Live badge ── */
+    .live-badge {
+      display: inline-flex; align-items: center;
+      gap: 6px;
+      font: 600 0.68rem var(--font-sans);
+      color: var(--reef-500);
+      letter-spacing: 0.5px;
+    }
+    [data-theme="light"] .live-badge { color: #16a34a; }
+    .live-pulse { position: relative; width: 8px; height: 8px; flex-shrink: 0; }
+    .live-pulse-core { position: absolute; inset: 0; background: currentColor; border-radius: 50%; }
+    .live-pulse-ring {
+      position: absolute; inset: -3px; border-radius: 50%;
+      background: rgba(74,222,128,0.45);
+      animation: livePulse 1.8s ease-out infinite;
+    }
+    [data-theme="light"] .live-pulse-ring { background: rgba(22,163,74,0.3); }
+    @keyframes livePulse {
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    /* ── Footer ── */
+    .foot {
+      margin-top: 28px;
+      padding: 16px 4px 0;
+      max-width: var(--w-content);
+      width: 100%;
+      text-align: center;
+    }
+    .foot .tagline {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.95rem;
+      color: var(--fg-secondary);
+      text-wrap: pretty;
+    }
+    .foot .small {
+      margin-top: 10px;
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.4px;
+    }
+    .foot .small a { color: var(--cove-300); text-decoration: none; }
+    [data-theme="light"] .foot .small a { color: var(--cove-700); }
+    .foot .small a:hover { text-decoration: underline; }
+    .dka-credit {
+      margin-top: 18px;
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.3px;
+    }
+    .dka-logo {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #c8972a;
+      letter-spacing: -0.5px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Theme toggle — fixed top-right -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
+    <span class="theme-icon theme-icon-moon">🌙</span>
+    <span class="theme-icon theme-icon-sun">☀️</span>
+    <span class="theme-label" id="themeLabel">Dark</span>
+  </button>
+
+  <div class="header">
+    <div class="header-top">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M2 17c1.5-2 3-3 5-3s3.5 1 5 3 3.5 3 5 3" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2 12c1.5-2 3-3 5-3s3.5 1 5 3 3.5 3 5 3" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2 7c1.5-2 3-3 5-3s3.5 1 5 3 3.5 3 5 3"  stroke="#0369a1" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <h1>Hudson Marine Bot</h1>
+    </div>
+    <div class="station-pill" id="stationPill">&#9679;&nbsp; NYH1928 &bull; Pier&nbsp;92, Hudson River &bull; 6&nbsp;ft depth (Bin&nbsp;12)</div>
+    <div class="station-switcher" id="stationSwitcher">
+      <button class="station-btn active" data-idx="0" type="button">NYH1928 &middot; Pier 92</button>
+      <button class="station-btn" data-idx="1" type="button">NYH1927 &middot; HR Entrance</button>
+    </div>
+    <div class="station-meta" id="stationMeta"></div>
+    <div class="live-clock" id="liveClock"></div>
+  </div>
+
+  <form class="card" id="conditionsForm" autocomplete="off">
+    <div class="form-section-label">Date</div>
+    <div class="form-grid-date">
+      <div class="form-group">
+        <label for="year">Year</label>
+        <select id="year"></select>
+      </div>
+      <div class="form-group">
+        <label for="month">Month</label>
+        <select id="month"></select>
+      </div>
+      <div class="form-group">
+        <label for="day">Day</label>
+        <select id="day"></select>
+      </div>
+    </div>
+
+    <div class="form-section-label">Time</div>
+    <div class="form-grid-time">
+      <div class="form-group">
+        <label for="hour">Hour</label>
+        <select id="hour"></select>
+      </div>
+      <div class="form-group">
+        <label for="ampm">AM / PM</label>
+        <select id="ampm">
+          <option>AM</option>
+          <option>PM</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-now" id="btnNow">&#8635; Now</button>
+      <button type="submit" class="btn-submit" id="btnSubmit">Get Marine Conditions</button>
+    </div>
+  </form>
+
+  <div class="results" id="results"></div>
+
+  <div class="foot">
+    <div class="tagline">A quick check before the next launch — tide, current, wind, in one breath.</div>
+    <div class="small">Data: NOAA Tides &amp; Currents &middot; NWS &middot; <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1928_12" target="_blank" rel="noopener">NYH1928 Pier 92</a> &middot; <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1927_13" target="_blank" rel="noopener">NYH1927 HR Entrance</a></div>
+    <div class="dka-credit">Designed &amp; Published by &nbsp;<span class="dka-logo">DKA.</span></div>
+  </div>
+
+  <script>
+    const USE_LIVE_API = true;
+
+    const NWS_HOURLY = 'https://api.weather.gov/gridpoints/OKX/34,42/forecast/hourly';
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const pad2 = v => String(v).padStart(2, '0');
+
+    // ── Station configs ──
+    const STATIONS = [
+      {
+        id: 'NYH1928', bin: '12', units: 'english',
+        pill: '&#9679;&nbsp; NYH1928 &bull; Pier&nbsp;92, Hudson River &bull; 6&nbsp;ft depth (Bin&nbsp;12)',
+        tableLabel: 'NYH1928 &bull; Pier&nbsp;92, Hudson River &bull; 6&nbsp;ft (Bin&nbsp;12)',
+        meta: '40.7707&deg;&nbsp;N &nbsp;74.0028&deg;&nbsp;W',
+        noaaUrl: 'https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1928_12'
+      },
+      {
+        id: 'NYH1927', bin: '13', units: 'english',
+        pill: '&#9679;&nbsp; NYH1927 &bull; Hudson River Entrance &bull; 7&nbsp;ft depth (Bin&nbsp;13)',
+        tableLabel: 'NYH1927 &bull; Hudson River Entrance &bull; 7&nbsp;ft (Bin&nbsp;13)',
+        meta: '40.7076&deg;&nbsp;N &nbsp;74.0253&deg;&nbsp;W',
+        noaaUrl: 'https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1927_13'
+      }
+    ];
+    let activeStation = STATIONS[0];
+
+    // ── Helpers ──
+    function apiDateStr(d) { return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`; }
+    function dtKey(d) {
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+    function parseInputForm({ year, month, day, hour, ampm }) {
+      let h = +hour;
+      if (ampm === 'PM' && h !== 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      return new Date(+year, +month - 1, +day, h, 0, 0);
+    }
+    function getWeatherIcon(forecast) {
+      if (!forecast) return '🌡';
+      const f = forecast.toLowerCase();
+      if (f.includes('thunder'))                               return '⛈';
+      if (f.includes('snow') || f.includes('blizzard'))       return '🌨';
+      if (f.includes('sleet') || f.includes('freezing'))      return '🌨';
+      if (f.includes('rain') || f.includes('shower') || f.includes('drizzle')) return '🌧';
+      if (f.includes('fog')  || f.includes('haze'))           return '🌫';
+      if (f.includes('mostly sunny') || f.includes('partly cloudy')) return '⛅';
+      if (f.includes('partly sunny') || f.includes('mostly cloudy')) return '🌥';
+      if (f.includes('cloud') || f.includes('overcast'))      return '☁';
+      if (f.includes('sunny') || f.includes('clear'))         return '☀';
+      return '🌡';
+    }
+
+    function approximateTemp(f) {
+      if (f == null || isNaN(f)) return 'N/A';
+      const t = Math.round(f);
+      if (t <= 9) return 'near 0';
+      if (t >= 100) return 'around 100';
+      const base = Math.floor(t / 10) * 10;
+      const rem = t % 10;
+      return `${rem <= 3 ? 'low' : rem <= 6 ? 'mid' : 'upper'} ${base}s`;
+    }
+    function normalizeType(t) {
+      if (!t) return 'slack';
+      const s = String(t).toLowerCase().trim();
+      if (s === 'f' || s.includes('flood')) return 'flood';
+      if (s === 'e' || s.includes('ebb'))   return 'ebb';
+      return 'slack';
+    }
+    function fmtNoaaTime(t) {
+      const [date, time] = t.split(' ');
+      const [hh, mm] = time.split(':').map(Number);
+      const ap = hh < 12 ? 'AM' : 'PM';
+      const h12 = hh % 12 || 12;
+      return { date, clock: `${h12}:${String(mm).padStart(2,'0')} ${ap}` };
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+    function buildSequence(allEvents, startKey) {
+      if (!allEvents.length) return [];
+      const sorted = [...allEvents].sort((a, b) => a.Time.localeCompare(b.Time));
+      const before = sorted.filter(e => e.Time <= startKey);
+      const lastBefore = before.length ? before[before.length - 1] : null;
+      const after = sorted.filter(e => e.Time > startKey).slice(0, 2);
+      const result = [];
+      if (lastBefore) result.push(lastBefore);
+      result.push(...after);
+      return result;
+    }
+    function buildCopyText(wx, events) {
+      const dateHeader = events.length ? events[0].Time.split(' ')[0] : '';
+      const windStr = (wx?.windMph != null)
+        ? `Winds: ${wx.windMph}mph${wx.windDir ? ` (${wx.windDir})` : ''}`
+        : 'Winds: N/A';
+      const tempStr = (wx?.tempF  != null)  ? `Temp: ${approximateTemp(wx.tempF)}` : 'Temp: N/A';
+      const lines = [dateHeader, windStr, tempStr];
+      events.slice(0, 2).forEach(ev => {
+        const type = normalizeType(ev.Type);
+        const { clock } = fmtNoaaTime(ev.Time);
+        const isSlack = type === 'slack';
+        const vel = (!isSlack && ev.Velocity_Major != null)
+          ? Math.abs(Number(ev.Velocity_Major)).toFixed(2) : null;
+        const label = isSlack ? 'Slack' : `Max ${type}${vel ? ` ~${vel}` : ''}`;
+        lines.push(`${clock} - ${label}`);
+      });
+      return lines.join('\n');
+    }
+
+    // ── Live fetchers ──
+    async function fetchLiveWeather(targetDate) {
+      try {
+        const res = await fetch(NWS_HOURLY);
+        if (!res.ok) throw new Error('NWS ' + res.status);
+        const data = await res.json();
+        const periods = data.properties?.periods || [];
+        if (!periods.length) return null;
+        const ts = targetDate.getTime();
+        let period = periods.find(p => {
+          const s = new Date(p.startTime).getTime();
+          const e = new Date(p.endTime).getTime();
+          return ts >= s && ts < e;
+        });
+        if (!period) {
+          period = periods.reduce((best, p) =>
+            Math.abs(new Date(p.startTime).getTime() - ts) <
+            Math.abs(new Date(best.startTime).getTime() - ts) ? p : best);
+        }
+        let windMph = null;
+        const ws = period.windSpeed || '';
+        if (/calm/i.test(ws)) windMph = 0;
+        else {
+          const m = ws.match(/(\d+)(?:\s+to\s+(\d+))?/);
+          if (m) {
+            const lo = +m[1], hi = m[2] ? +m[2] : null;
+            windMph = hi ? Math.round((lo + hi) / 2) : lo;
+          }
+        }
+        let tempF = period.temperature;
+        if (period.temperatureUnit === 'C') tempF = tempF * 9/5 + 32;
+        const windDir       = period.windDirection || null;
+        const shortForecast = period.shortForecast || '';
+        const precipPct     = period.probabilityOfPrecipitation?.value ?? null;
+        return { tempF, windMph, windDir, shortForecast, precipPct };
+      } catch (e) {
+        console.error('Weather error:', e);
+        return null;
+      }
+    }
+    async function fetchLiveCurrents(startDate, station = activeStation) {
+      const oneDayBefore = new Date(startDate.getTime() - 86400000);
+      const begin = apiDateStr(oneDayBefore);
+      const url = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter'
+        + `?product=currents_predictions&format=json`
+        + `&station=${station.id}&bin=${station.bin}`
+        + `&units=${station.units}&begin_date=${begin}&range=96`
+        + `&interval=MAX_SLACK&time_zone=lst_ldt`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.error) throw new Error(d.error.message || 'NOAA API error');
+      return d.current_predictions?.cp || [];
+    }
+
+    // ── Form wiring ──
+    const els = {
+      year:      document.getElementById('year'),
+      month:     document.getElementById('month'),
+      day:       document.getElementById('day'),
+      hour:      document.getElementById('hour'),
+      ampm:      document.getElementById('ampm'),
+      form:      document.getElementById('conditionsForm'),
+      btnNow:    document.getElementById('btnNow'),
+      btnSubmit: document.getElementById('btnSubmit'),
+      results:   document.getElementById('results'),
+      clock:     document.getElementById('liveClock'),
+    };
+
+    function fillSelect(sel, opts) {
+      sel.innerHTML = '';
+      for (const o of opts) {
+        const op = document.createElement('option');
+        op.value = o.v; op.textContent = o.label;
+        sel.appendChild(op);
+      }
+    }
+    function populateStatic() {
+      const cy = new Date().getFullYear();
+      fillSelect(els.year,  [cy-1,cy,cy+1,cy+2].map(y => ({ v: y, label: y })));
+      fillSelect(els.month, Array.from({length:12},(_,i)=>i+1).map(m => ({ v: m, label: `${pad2(m)} – ${MON[m-1]}` })));
+      fillSelect(els.hour,  Array.from({length:12},(_,i)=>i+1).map(h => ({ v: h, label: h })));
+    }
+    function repopulateDays() {
+      const y = +els.year.value, m = +els.month.value;
+      const max = new Date(y, m, 0).getDate();
+      const cur = +els.day.value || 1;
+      fillSelect(els.day, Array.from({length:max},(_,i)=>i+1).map(d => ({ v: d, label: pad2(d) })));
+      els.day.value = Math.min(cur, max);
+    }
+    function setFormToNow() {
+      const n = new Date();
+      els.year.value  = n.getFullYear();
+      els.month.value = n.getMonth() + 1;
+      repopulateDays();
+      els.day.value   = n.getDate();
+      const h24 = n.getHours();
+      els.hour.value  = h24 % 12 || 12;
+      els.ampm.value  = h24 < 12 ? 'AM' : 'PM';
+    }
+    function readForm() {
+      return {
+        year: +els.year.value, month: +els.month.value,
+        day:  +els.day.value,  hour:  +els.hour.value,
+        ampm: els.ampm.value,
+      };
+    }
+
+    // ── Rendering ──
+    function renderLoading() {
+      els.results.innerHTML = `
+        <div class="card">
+          <div class="loading-box"><div class="spinner"></div>Contacting NOAA &amp; NWS…</div>
+        </div>`;
+    }
+    function renderError(msg) {
+      els.results.innerHTML = `<div class="card"><div class="error-box">&#9888; ${escapeHtml(msg)}</div></div>`;
+    }
+    function renderResult(wx, events, startKey) {
+      if (!events) { els.results.innerHTML = ''; return; }
+
+      const tempStr   = wx?.tempF   != null ? approximateTemp(wx.tempF) : 'N/A';
+      const windStr   = wx?.windMph != null
+        ? `${wx.windMph} mph${wx.windDir ? ` (${wx.windDir})` : ''}`
+        : 'N/A';
+      const wxIcon    = getWeatherIcon(wx?.shortForecast);
+      const precipStr = wx?.precipPct != null ? `${wx.precipPct}%` : 'N/A';
+
+      const rows = events.length ? events.map(ev => {
+        const type    = normalizeType(ev.Type);
+        const isSlack = type === 'slack';
+        const speed   = (!isSlack && ev.Velocity_Major != null)
+          ? Math.abs(Number(ev.Velocity_Major)).toFixed(1) : null;
+        const { date, clock } = fmtNoaaTime(ev.Time);
+        const isPast  = ev.Time < startKey;
+        const cls     = type === 'flood' ? 'badge-flood' : type === 'ebb' ? 'badge-ebb' : 'badge-slack';
+        const label   = isSlack ? 'Slack' : `Max ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        const velCell = (isSlack || speed == null)
+          ? `<span class="vel-dash">–</span>`
+          : `<span class="vel-value">${speed}</span><span class="vel-unit">kt</span>`;
+        return `
+          <tr class="${isPast ? 'past' : ''}">
+            <td class="time-cell">
+              <span class="time-date">${escapeHtml(date)}</span>
+              <span class="time-hour">${escapeHtml(clock)}</span>
+            </td>
+            <td><span class="type-badge ${cls}"><span class="badge-dot"></span>${label}</span></td>
+            <td class="col-vel">${velCell}</td>
+          </tr>`;
+      }).join('') : '';
+
+      const tableHtml = events.length
+        ? `<table class="currents-table">
+             <thead><tr>
+               <th>Date &amp; Time</th><th>Type</th><th class="col-vel">Knots</th>
+             </tr></thead>
+             <tbody>${rows}</tbody>
+           </table>`
+        : `<div class="no-events-box">No current events found for this time range.</div>`;
+
+      const copyText = buildCopyText(wx, events);
+
+      els.results.innerHTML = `
+        <div class="card animate-in">
+          <div class="stat-row">
+            <div class="stat-chip">
+              <div class="stat-icon">💨</div>
+              <div>
+                <div class="stat-value">${escapeHtml(windStr)}</div>
+                <div class="stat-label">Wind</div>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-icon">${wxIcon}</div>
+              <div>
+                <div class="stat-value">${escapeHtml(precipStr)}</div>
+                <div class="stat-label">Precip.</div>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-icon">🌡</div>
+              <div>
+                <div class="stat-value">${escapeHtml(tempStr)}</div>
+                <div class="stat-label">Temp</div>
+              </div>
+            </div>
+          </div>
+          <div class="section-label">
+            <span>Tidal Currents — ${activeStation.tableLabel}</span>
+            <span class="live-badge">
+              <span class="live-pulse">
+                <span class="live-pulse-core"></span>
+                <span class="live-pulse-ring"></span>
+              </span>
+              LIVE
+            </span>
+          </div>
+          ${tableHtml}
+          <div class="copy-bar">
+            <pre class="copy-preview" id="copyPreview">${escapeHtml(copyText)}</pre>
+            <button class="btn-copy" id="btnCopy" type="button">⧖ Copy</button>
+          </div>
+        </div>`;
+
+      const btnCopy = document.getElementById('btnCopy');
+      btnCopy.addEventListener('click', async () => {
+        try {
+          if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(copyText);
+          btnCopy.classList.add('copied');
+          btnCopy.textContent = '✓ Copied!';
+          setTimeout(() => {
+            btnCopy.classList.remove('copied');
+            btnCopy.textContent = '⧖ Copy';
+          }, 2000);
+        } catch { /* swallow */ }
+      });
+    }
+
+    // ── Submit ──
+    async function onSubmit() {
+      els.btnSubmit.disabled = true;
+      els.btnSubmit.textContent = 'Fetching…';
+      renderLoading();
+      try {
+        const startDate = parseInputForm(readForm());
+        const startKey  = dtKey(startDate);
+        const [wx, allCurrents] = await Promise.all([
+          fetchLiveWeather(startDate),
+          fetchLiveCurrents(startDate),
+        ]);
+        const events = buildSequence(allCurrents, startKey);
+        renderResult(wx, events, startKey);
+      } catch (err) {
+        renderError(err.message || String(err));
+      } finally {
+        els.btnSubmit.disabled = false;
+        els.btnSubmit.textContent = 'Get Marine Conditions';
+      }
+    }
+
+    // ── Station switcher ──
+    function applyStation(idx) {
+      activeStation = STATIONS[idx];
+      document.getElementById('stationPill').innerHTML = activeStation.pill;
+      const metaEl = document.getElementById('stationMeta');
+      if (activeStation.meta) {
+        metaEl.innerHTML = `${activeStation.meta} &nbsp;&mdash;&nbsp; <a href="${activeStation.noaaUrl}" target="_blank" rel="noopener">NOAA predictions &#8599;</a>`;
+      } else {
+        metaEl.innerHTML = '';
+      }
+      document.querySelectorAll('.station-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+      });
+    }
+    document.querySelectorAll('.station-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = +btn.dataset.idx;
+        if (activeStation === STATIONS[idx]) return;
+        applyStation(idx);
+        els.form.dispatchEvent(new Event('submit'));
+      });
+    });
+
+    // ── Theme toggle ──
+    const themeToggle = document.getElementById('themeToggle');
+    const themeLabel  = document.getElementById('themeLabel');
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
+      try { localStorage.setItem('hmbTheme', theme); } catch {}
+    }
+    themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    });
+    // Restore saved preference
+    try {
+      const saved = localStorage.getItem('hmbTheme');
+      if (saved === 'light' || saved === 'dark') applyTheme(saved);
+    } catch {}
+
+    // ── Live clock ──
+    function tickClock() {
+      els.clock.textContent = new Date().toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true,
+      });
+    }
+
+    // ── Boot ──
+    populateStatic();
+    setFormToNow();
+    repopulateDays();
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    els.year.addEventListener('change', repopulateDays);
+    els.month.addEventListener('change', repopulateDays);
+    els.btnNow.addEventListener('click', setFormToNow);
+    els.form.addEventListener('submit', e => { e.preventDefault(); onSubmit(); });
+
+    onSubmit();
+  </script>
+</body>
+</html>

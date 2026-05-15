@@ -1,0 +1,8 @@
+node_modules/
+*.txt
+find-*.js
+inspect-*.js
+search-*.js
+package-lock.json
+package.json
+ideathon Final.pptx
