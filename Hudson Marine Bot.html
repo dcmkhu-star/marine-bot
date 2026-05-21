@@ -293,9 +293,10 @@
     }
     .form-grid-date {
       display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 8px;
       margin-bottom: 18px;
+      align-items: end;
     }
     .form-grid-time {
       display: grid;
@@ -625,11 +626,62 @@
     }
 
     .wx-inline-sub {
+      display: block;
       font: 500 0.68rem var(--font-sans);
       color: var(--fg-muted);
-      margin-left: 7px;
+      margin-top: 4px;
       letter-spacing: 0.15px;
-      vertical-align: middle;
+    }
+
+    .predicted-badge {
+      display: inline-flex; align-items: center;
+      gap: 6px;
+      font: 600 0.68rem var(--font-sans);
+      color: var(--cove-300);
+      letter-spacing: 0.5px;
+    }
+    .predicted-dot {
+      width: 8px; height: 8px; flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--cove-400);
+      opacity: 0.7;
+    }
+    .btn-cal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-sm);
+      color: var(--fg-muted);
+      font: 500 0.75rem var(--font-sans);
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: all var(--dur-base);
+      line-height: 1;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .btn-cal svg { flex-shrink: 0; transition: color var(--dur-base); }
+    .btn-cal:hover {
+      border-color: var(--cove-400);
+      color: var(--cove-300);
+      background: rgba(56,189,248,0.08);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.10), 0 2px 10px rgba(56,189,248,0.15);
+    }
+    [data-theme="light"] .btn-cal:hover {
+      background: rgba(3,105,161,0.06);
+      box-shadow: 0 0 0 3px rgba(3,105,161,0.10);
+    }
+    .btn-cal:active { transform: scale(0.96); }
+    #calPicker {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0; height: 0;
+      color-scheme: dark;
     }
 
     .wx-thunder-badge {
@@ -856,6 +908,19 @@
         <label for="day">Day</label>
         <select id="day"></select>
       </div>
+      <div class="form-group" style="position:relative;">
+        <label style="opacity:0;pointer-events:none;">Pick</label>
+        <input type="date" id="calPicker" tabindex="-1" aria-hidden="true">
+        <button type="button" class="btn-cal" id="btnCal" title="Open calendar">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="2.5" width="12" height="10" rx="1.5"/>
+            <path d="M1 6.5h12"/>
+            <path d="M4 1v3M10 1v3"/>
+            <path d="M4 9.5h1M7 9.5h1M10 9.5h1"/>
+          </svg>
+          Cal
+        </button>
+      </div>
     </div>
 
     <div class="form-section-label">Time</div>
@@ -1059,6 +1124,8 @@
       ampm:      document.getElementById('ampm'),
       form:      document.getElementById('conditionsForm'),
       btnNow:    document.getElementById('btnNow'),
+      btnCal:    document.getElementById('btnCal'),
+      calPicker: document.getElementById('calPicker'),
       btnSubmit: document.getElementById('btnSubmit'),
       results:   document.getElementById('results'),
       clock:     document.getElementById('liveClock'),
@@ -1149,19 +1216,20 @@
         : `<div class="no-events-box">No current events found for this time range.</div>`;
 
       const copyText = buildCopyText(wx, events);
+      const isLive = targetDate.getTime() <= Date.now() + 5 * 60 * 1000;
+      const statusBadge = isLive
+        ? `<span class="live-badge">
+             <span class="live-pulse"><span class="live-pulse-core"></span><span class="live-pulse-ring"></span></span>
+             LIVE
+           </span>`
+        : `<span class="predicted-badge"><span class="predicted-dot"></span>PREDICTED</span>`;
 
       els.results.innerHTML = `
         <div class="card animate-in">
           <div id="wxGridHost"></div>
           <div class="section-label">
             <span>Tidal Currents — ${activeStation.tableLabel}</span>
-            <span class="live-badge">
-              <span class="live-pulse">
-                <span class="live-pulse-core"></span>
-                <span class="live-pulse-ring"></span>
-              </span>
-              LIVE
-            </span>
+            ${statusBadge}
           </div>
           ${tableHtml}
           <div class="copy-bar">
@@ -1578,7 +1646,29 @@
 
     els.year.addEventListener('change', repopulateDays);
     els.month.addEventListener('change', repopulateDays);
-    els.btnNow.addEventListener('click', setFormToNow);
+    // "Now" fills form AND immediately submits
+    els.btnNow.addEventListener('click', () => {
+      setFormToNow();
+      onSubmit();
+    });
+
+    // Calendar button opens native date picker
+    els.btnCal.addEventListener('click', () => {
+      const y = els.year.value, m = String(els.month.value).padStart(2,'0'), d = String(els.day.value).padStart(2,'0');
+      els.calPicker.value = `${y}-${m}-${d}`;
+      els.calPicker.style.pointerEvents = 'auto';
+      els.calPicker.showPicker ? els.calPicker.showPicker() : els.calPicker.click();
+    });
+    els.calPicker.addEventListener('change', () => {
+      const [cy, cm, cd] = els.calPicker.value.split('-');
+      if (!cy) return;
+      els.year.value  = cy;
+      els.month.value = +cm;
+      repopulateDays();
+      els.day.value   = +cd;
+      els.calPicker.style.pointerEvents = 'none';
+    });
+
     els.form.addEventListener('submit', e => { e.preventDefault(); onSubmit(); });
 
     onSubmit();
