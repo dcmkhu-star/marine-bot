@@ -20,18 +20,18 @@
 
       --cove-700: #0369a1;
       --cove-600: #0891b2;
-      --cove-500: #0ea5e9;
-      --cove-400: #38bdf8;
-      --cove-300: #7dd3fc;
-      --cove-200: #a0c8e0;
-      --cove-100: #cce7f5;
-      --cove-50:  #e0f0ff;
+      --cove-500: #22c0f0;
+      --cove-400: #56ccf9;
+      --cove-300: #a0e4ff;
+      --cove-200: #c0dff0;
+      --cove-100: #dff0fa;
+      --cove-50:  #eef8ff;
 
       --foam-50:  #ffffff;
       --slate-500: #2a5068;
-      --slate-400: #4a7a94;
-      --slate-300: #5a8ea8;
-      --slate-200: #7cb8d4;
+      --slate-400: #6a9ab4;
+      --slate-300: #8abcd4;
+      --slate-200: #a0cce0;
 
       --sunset-500: #fb923c;
       --coral-500:  #f87171;
@@ -46,9 +46,9 @@
       --bg-select-opt:   var(--hudson-700);
 
       --fg-strong:    var(--foam-50);
-      --fg-default:   var(--cove-100);
-      --fg-secondary: var(--cove-200);
-      --fg-muted:     var(--slate-400);
+      --fg-default:   var(--cove-50);
+      --fg-secondary: var(--cove-100);
+      --fg-muted:     var(--slate-300);
       --fg-link:      var(--cove-400);
 
       --border-soft:    rgba(255,255,255,0.04);
@@ -574,6 +574,244 @@
       letter-spacing: -0.5px;
     }
 
+    /* ── Weather 2×2 grid ── */
+    .wx-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 440px) { .wx-grid { grid-template-columns: 1fr; } }
+
+    .wx-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-lg);
+      padding: 14px 16px 12px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      min-height: 122px;
+      display: flex;
+      flex-direction: column;
+      cursor: default;
+      user-select: none;
+    }
+    .wx-card-eyebrow {
+      font: 600 0.62rem var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--fg-muted);
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+    .wx-card-value {
+      font: 800 2rem/1 var(--font-sans);
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 2;
+      transition: color 0.15s;
+    }
+    .wx-card-sub {
+      font: 500 0.64rem var(--font-sans);
+      color: var(--fg-muted);
+      margin-top: 5px;
+      position: relative;
+      z-index: 2;
+      letter-spacing: 0.2px;
+      flex: 1;
+    }
+
+    .wx-inline-sub {
+      font: 500 0.68rem var(--font-sans);
+      color: var(--fg-muted);
+      margin-left: 7px;
+      letter-spacing: 0.15px;
+      vertical-align: middle;
+    }
+
+    .wx-thunder-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 8px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: rgba(251,191,36,0.15);
+      border: 1px solid rgba(251,191,36,0.35);
+      color: #fbbf24;
+      font: 600 0.7rem var(--font-sans);
+      letter-spacing: 0.2px;
+      vertical-align: middle;
+    }
+    .wx-thunder-badge.wx-thunder-later {
+      background: rgba(251,191,36,0.08);
+      border-color: rgba(251,191,36,0.2);
+      color: #fcd34d;
+      font-weight: 500;
+    }
+
+    .wx-spk-wrap {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 62px;
+      pointer-events: none;
+    }
+    .wx-spk-wrap svg { width: 100%; height: 100%; display: block; }
+
+    /* Hover scrubber overlay */
+    .wx-scrub {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      cursor: default;
+    }
+
+    /* Faint dashed gridline */
+    .wx-scrub-line {
+      position: absolute;
+      top: 0; bottom: 18px;
+      width: 1px;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.1) 0px,
+        rgba(255,255,255,0.1) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 11;
+    }
+    [data-theme="light"] .wx-scrub-line {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.1) 0px,
+        rgba(0,0,0,0.1) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+    }
+
+    /* Hour label at bottom of gridline */
+    .wx-scrub-time {
+      position: absolute;
+      bottom: 3px;
+      font: 600 0.62rem var(--font-mono);
+      color: rgba(255,255,255,0.78);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+      transition: opacity 0.12s;
+      z-index: 12;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    [data-theme="light"] .wx-scrub-time { color: rgba(0,0,0,0.55); }
+
+    /* Value tooltip — value only, no time */
+    .wx-tooltip {
+      position: absolute;
+      top: 8px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 13;
+      transform: translateX(-50%);
+    }
+    .wx-tooltip-inner {
+      background: var(--hudson-800);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 4px 8px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      white-space: nowrap;
+    }
+    [data-theme="light"] .wx-tooltip-inner {
+      background: rgba(255,255,255,0.96);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    .wx-tooltip-val {
+      font: 700 0.88rem/1 var(--font-sans);
+      letter-spacing: -0.3px;
+    }
+    .wx-tooltip-time { display: none; }
+
+    /* Bold dot — no border ring */
+    .wx-scrub-dot {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 14;
+    }
+
+    .wx-sun-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 6px;
+      position: relative;
+      z-index: 2;
+      flex: 1;
+    }
+    .wx-sun-block { text-align: center; flex: 1; }
+    .wx-sun-icon  { font-size: 1.5rem; line-height: 1; }
+    .wx-sun-time  {
+      font: 700 0.8rem/1 var(--font-mono);
+      letter-spacing: -0.3px;
+      margin-top: 5px;
+    }
+    .wx-sun-label {
+      font: 500 0.57rem var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--fg-muted);
+      margin-top: 2px;
+    }
+    .wx-sun-divider {
+      width: 1px; height: 36px;
+      background: var(--border-default);
+      flex-shrink: 0;
+    }
+    .wx-sun-daylight {
+      font: 500 0.62rem var(--font-sans);
+      color: var(--fg-muted);
+      text-align: center;
+      margin-top: 8px;
+      position: relative; z-index: 2;
+    }
+
+    .wx-wind-bars {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 62px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      padding: 0 4px;
+      pointer-events: none;
+      opacity: 0.38;
+    }
+    .wx-wind-bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      background: linear-gradient(180deg, var(--cove-400), rgba(56,189,248,0.25));
+      transition: opacity 0.1s;
+    }
+    .wx-wind-bar.is-target {
+      background: linear-gradient(180deg, var(--cove-300), var(--cove-500));
+      opacity: 1 !important;
+    }
+
   </style>
 </head>
 <body>
@@ -875,15 +1113,8 @@
     function renderError(msg) {
       els.results.innerHTML = `<div class="card"><div class="error-box">&#9888; ${escapeHtml(msg)}</div></div>`;
     }
-    function renderResult(wx, events, startKey) {
+    function renderResult(wx, events, startKey, targetDate) {
       if (!events) { els.results.innerHTML = ''; return; }
-
-      const tempStr   = wx?.tempF   != null ? approximateTemp(wx.tempF) : 'N/A';
-      const windStr   = wx?.windMph != null
-        ? `${wx.windMph} mph${wx.windDir ? ` (${wx.windDir})` : ''}`
-        : 'N/A';
-      const wxIcon    = getWeatherIcon(wx?.shortForecast);
-      const precipStr = wx?.precipPct != null ? `${wx.precipPct}%` : 'N/A';
 
       const rows = events.length ? events.map(ev => {
         const type    = normalizeType(ev.Type);
@@ -921,29 +1152,7 @@
 
       els.results.innerHTML = `
         <div class="card animate-in">
-          <div class="stat-row">
-            <div class="stat-chip">
-              <div class="stat-icon">💨</div>
-              <div>
-                <div class="stat-value">${escapeHtml(windStr)}</div>
-                <div class="stat-label">Wind</div>
-              </div>
-            </div>
-            <div class="stat-chip">
-              <div class="stat-icon">${wxIcon}</div>
-              <div>
-                <div class="stat-value">${escapeHtml(precipStr)}</div>
-                <div class="stat-label">Precip.</div>
-              </div>
-            </div>
-            <div class="stat-chip">
-              <div class="stat-icon">🌡</div>
-              <div>
-                <div class="stat-value">${escapeHtml(tempStr)}</div>
-                <div class="stat-label">Temp</div>
-              </div>
-            </div>
-          </div>
+          <div id="wxGridHost"></div>
           <div class="section-label">
             <span>Tidal Currents — ${activeStation.tableLabel}</span>
             <span class="live-badge">
@@ -961,17 +1170,331 @@
           </div>
         </div>`;
 
+      // Wire copy button
       const btnCopy = document.getElementById('btnCopy');
       btnCopy.addEventListener('click', async () => {
         try {
           if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(copyText);
           btnCopy.classList.add('copied');
           btnCopy.textContent = '✓ Copied!';
-          setTimeout(() => {
-            btnCopy.classList.remove('copied');
-            btnCopy.textContent = '⧖ Copy';
-          }, 2000);
+          setTimeout(() => { btnCopy.classList.remove('copied'); btnCopy.textContent = '⧖ Copy'; }, 2000);
         } catch { /* swallow */ }
+      });
+
+      // Fetch & render weather grid asynchronously
+      fetchWindowSeries(targetDate).then(async series => {
+        const host = document.getElementById('wxGridHost');
+        if (!host) return;
+        try {
+          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://forecast.weather.gov/MapClick.php?FcstType=json&textField1=40.7198&textField2=-73.993')}`;
+          const gr = await fetch(proxy);
+          if (gr.ok) {
+            const gd = await gr.json();
+            const texts = gd?.data?.text || [];
+            series.forEach((s, i) => {
+              if (texts[i] && /thunder/i.test(texts[i])) s.thunder = true;
+            });
+          }
+        } catch { /* silent — NWS shortForecast is primary source */ }
+        host.outerHTML = buildWeatherGrid(wx, series, targetDate);
+        attachScrubbers();
+      }).catch(() => {
+        const host = document.getElementById('wxGridHost');
+        if (host) host.outerHTML = '';
+      });
+    }
+
+    // WEATHER GRID & SPARKLINE SYSTEM
+    // ─────────────────────────────────────────────
+
+    async function fetchWindowSeries(targetDate) {
+      const res = await fetch(NWS_HOURLY);
+      if (!res.ok) throw new Error('NWS ' + res.status);
+      const data = await res.json();
+      const periods = data.properties?.periods || [];
+      const ts = targetDate.getTime();
+
+      let idx = periods.findIndex(p => {
+        const s = new Date(p.startTime).getTime();
+        const e = new Date(p.endTime).getTime();
+        return ts >= s && ts < e;
+      });
+      if (idx === -1) idx = periods.reduce((bi, p, i) =>
+        Math.abs(new Date(p.startTime).getTime() - ts) <
+        Math.abs(new Date(periods[bi].startTime).getTime() - ts) ? i : bi, 0);
+
+      const start = Math.max(0, idx - 2);
+      const slice = periods.slice(start, start + 6);
+      const targetIdxInSlice = idx - start;
+
+      return slice.map((p, i) => {
+        let t = p.temperature;
+        if (p.temperatureUnit === 'C') t = t * 9/5 + 32;
+        const m = (p.windSpeed || '').match(/(\d+)(?:\s+to\s+(\d+))?/);
+        const wind = m ? (m[2] ? Math.round((+m[1] + +m[2]) / 2) : +m[1]) : 0;
+        const dt = new Date(p.startTime);
+        const h = dt.getHours();
+        const label = i === targetIdxInSlice ? 'now' : `${h % 12 || 12}${h < 12 ? 'AM' : 'PM'}`;
+        return {
+          temp:     Math.round(t),
+          wind,
+          precip:   p.probabilityOfPrecipitation?.value ?? 0,
+          label,
+          isTarget: i === targetIdxInSlice,
+        };
+      });
+    }
+
+    function tempColor(f) {
+      if (f == null) return 'var(--fg-strong)';
+      if (f <= 32)  return '#cce7f5';
+      if (f <= 50)  return '#7dd3fc';
+      if (f <= 75)  return '#fbbf24';
+      return '#f87171';
+    }
+
+    function getSunTimes(targetDate) {
+      const doy = Math.floor((targetDate - new Date(targetDate.getFullYear(), 0, 0)) / 86400000);
+      const lat  = 40.71 * Math.PI / 180;
+      const decl = -0.4093 * Math.cos(2 * Math.PI * (doy + 10) / 365);
+      const ha   = Math.acos(-Math.tan(lat) * Math.tan(decl));
+      const haDeg = ha * 180 / Math.PI;
+      const tz   = 74.01 / 15 - 5;
+      const riseH = 12 - haDeg / 15 - tz;
+      const setH  = 12 + haDeg / 15 - tz;
+      const fmt = h => {
+        const hh = ((Math.floor(h) % 24) + 24) % 24;
+        const mm = Math.round((h % 1) * 60);
+        const ap = hh < 12 ? 'AM' : 'PM';
+        return `${hh % 12 || 12}:${String(mm).padStart(2, '0')} ${ap}`;
+      };
+      const daylight = Math.round((setH - riseH) * 10) / 10;
+      return { rise: fmt(riseH), set: fmt(setH), daylight };
+    }
+
+    function buildSpkPath(vals, W, H, pad = 8) {
+      if (vals.length < 2) return { line: '', area: '', pts: [] };
+      const lo = Math.min(...vals) - 1, hi = Math.max(...vals) + 1;
+      const x = (i) => (i / (vals.length - 1)) * W;
+      const y = (v) => pad + (1 - (v - lo) / ((hi - lo) || 1)) * (H - pad * 2);
+      const pts = vals.map((v, i) => [x(i), y(v)]);
+      let d = `M${pts[0][0]},${pts[0][1]}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+        const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += ` C${c1x},${c1y} ${c2x},${c2y} ${p2[0]},${p2[1]}`;
+      }
+      const area = `${d} L${pts.at(-1)[0]},${H} L${pts[0][0]},${H} Z`;
+      return { line: d, area, pts };
+    }
+
+    function buildSpkSVG(vals, strokeColor, gradId) {
+      const W = 300, H = 62;
+      const { line, area } = buildSpkPath(vals, W, H);
+      return `<div class="wx-spk-wrap">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${strokeColor}" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="${strokeColor}" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="${area}" fill="url(#${gradId})" opacity="0.45"/>
+          <path d="${line}" stroke="${strokeColor}" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.7"/>
+        </svg>
+      </div>`;
+    }
+
+    function buildPrecipThunderSVG(series) {
+      const W = 300, H = 62;
+      const { line, area } = buildSpkPath(series.map(s => s.precip), W, H);
+      const x = (i) => (i / (series.length - 1)) * W;
+      const boltMarkers = series.map((s, i) => {
+        if (!s.thunder) return '';
+        const cx = x(i);
+        return `<text x="${cx}" y="14" text-anchor="middle" font-size="11" opacity="0.9" fill="#fbbf24">⚡</text>`;
+      }).join('');
+      return `<div class="wx-spk-wrap">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gPrec" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--cove-400)" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="var(--cove-400)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="${area}" fill="url(#gPrec)" opacity="0.45"/>
+          <path d="${line}" stroke="var(--cove-400)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.7"/>
+          ${boltMarkers}
+        </svg>
+      </div>`;
+    }
+
+    function buildWeatherGrid(wx, series, targetDate) {
+      const sun    = getSunTimes(targetDate);
+      const tc     = tempColor(wx?.tempF);
+      const tVal   = wx?.tempF  != null ? `${Math.round(wx.tempF)}°` : 'N/A';
+      const wVal   = wx?.windMph != null ? `${wx.windMph}` : 'N/A';
+      const pVal   = wx?.precipPct != null ? `${wx.precipPct}%` : 'N/A';
+      const wDir   = wx?.windDir || '';
+      const fcast  = wx?.shortForecast || '—';
+      const maxWind = Math.max(...series.map(s => s.wind), 1);
+      const glow = (color) => `text-shadow: 0 0 20px ${color}66, 0 0 8px ${color}44`;
+
+      const c1 = `<div class="wx-card" data-card="temp" data-series='${JSON.stringify(series.map(s=>s.temp))}' data-labels='${JSON.stringify(series.map(s=>s.label))}' data-unit="°F" data-color="${tc}">
+        ${buildSpkSVG(series.map(s => s.temp), tc, 'gTemp')}
+        <div class="wx-card-eyebrow">Temperature</div>
+        <div class="wx-card-value" style="color:${tc};${glow(tc)}">${tVal}<span style="font:600 1rem/1 var(--font-sans);margin-left:3px;opacity:0.65;">F</span><span class="wx-inline-sub">${fcast}</span></div>
+        <div class="wx-scrub-line" id="scl-temp"></div>
+        <div class="wx-scrub-dot" id="scd-temp" style="background:${tc};"></div>
+        <div class="wx-scrub-time" id="sctm-temp"></div>
+        <div class="wx-tooltip" id="sct-temp"><div class="wx-tooltip-inner"><span class="wx-tooltip-val" style="color:${tc}"></span><span class="wx-tooltip-time"></span></div></div>
+        <div class="wx-scrub" data-card="temp"></div>
+      </div>`;
+
+      const windBarsHtml = series.map(s => {
+        const h = Math.round((s.wind / maxWind) * 100);
+        return `<div class="wx-wind-bar${s.isTarget ? ' is-target' : ''}" style="height:${Math.max(h, 6)}%"></div>`;
+      }).join('');
+      const c2 = `<div class="wx-card" data-card="wind" data-series='${JSON.stringify(series.map(s=>s.wind))}' data-labels='${JSON.stringify(series.map(s=>s.label))}' data-unit=" mph" data-color="var(--cove-300)">
+        <div class="wx-wind-bars">${windBarsHtml}</div>
+        <div class="wx-card-eyebrow">Wind</div>
+        <div class="wx-card-value" style="color:var(--cove-300);${glow('#7dd3fc')}">${wVal}<span style="font:600 1rem/1 var(--font-sans);color:var(--cove-400);margin-left:5px;opacity:0.8;">mph</span><span class="wx-inline-sub">${wDir ? `from ${wDir}` : ''}</span></div>
+        <div class="wx-scrub-line" id="scl-wind"></div>
+        <div class="wx-scrub-dot" id="scd-wind" style="background:var(--cove-300);"></div>
+        <div class="wx-scrub-time" id="sctm-wind"></div>
+        <div class="wx-tooltip" id="sct-wind"><div class="wx-tooltip-inner"><span class="wx-tooltip-val" style="color:var(--cove-300)"></span><span class="wx-tooltip-time"></span></div></div>
+        <div class="wx-scrub" data-card="wind"></div>
+      </div>`;
+
+      const c3 = `<div class="wx-card" style="cursor:default;">
+        <div class="wx-card-eyebrow">Sun · ${targetDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+        <div class="wx-sun-row">
+          <div class="wx-sun-block">
+            <div class="wx-sun-icon">🌅</div>
+            <div class="wx-sun-time" style="color:#fbbf24;">${sun.rise}</div>
+            <div class="wx-sun-label">Sunrise</div>
+          </div>
+          <div class="wx-sun-divider"></div>
+          <div class="wx-sun-block">
+            <div class="wx-sun-icon">🌇</div>
+            <div class="wx-sun-time" style="color:#f97316;">${sun.set}</div>
+            <div class="wx-sun-label">Sunset</div>
+          </div>
+        </div>
+        <div class="wx-sun-daylight">${sun.daylight}h daylight</div>
+      </div>`;
+
+      const targetSeries  = series.find(s => s.isTarget) || series[0];
+      const thunderNow    = targetSeries?.thunder || /thunder/i.test(wx?.shortForecast || '');
+      const thunderPct    = thunderNow ? (wx?.precipPct ?? 0) : null;
+      const anyThunder    = series.some(s => s.thunder);
+      const thunderBadge  = thunderNow
+        ? `<span class="wx-thunder-badge">⚡ ${thunderPct}%</span>`
+        : anyThunder
+        ? `<span class="wx-thunder-badge wx-thunder-later">⚡ later</span>`
+        : '';
+
+      const c4 = `<div class="wx-card" data-card="precip" data-series='${JSON.stringify(series.map(s=>s.precip))}' data-labels='${JSON.stringify(series.map(s=>s.label))}' data-unit="%" data-color="var(--cove-400)">
+        ${buildPrecipThunderSVG(series)}
+        <div class="wx-card-eyebrow">Precipitation</div>
+        <div class="wx-card-value" style="color:var(--cove-400);${glow('#38bdf8')}">${pVal}<span class="wx-inline-sub">chance of rain</span>${thunderBadge}</div>
+        <div class="wx-scrub-line" id="scl-precip"></div>
+        <div class="wx-scrub-dot" id="scd-precip" style="background:var(--cove-400);"></div>
+        <div class="wx-scrub-time" id="sctm-precip"></div>
+        <div class="wx-tooltip" id="sct-precip"><div class="wx-tooltip-inner"><span class="wx-tooltip-val" style="color:var(--cove-400)"></span><span class="wx-tooltip-time"></span></div></div>
+        <div class="wx-scrub" data-card="precip"></div>
+      </div>`;
+
+      return `<div class="wx-grid">${c1}${c2}${c3}${c4}</div>`;
+    }
+
+    // ─────────────────────────────────────────────
+    // SCRUBBER INTERACTION
+    // ─────────────────────────────────────────────
+    function attachScrubbers() {
+      document.querySelectorAll('.wx-scrub').forEach(scrub => {
+        const card = scrub.closest('.wx-card');
+        if (!card) return;
+        const id    = scrub.dataset.card;
+        const vals  = JSON.parse(card.dataset.series || '[]');
+        const lbls  = JSON.parse(card.dataset.labels || '[]');
+        const unit  = card.dataset.unit  || '';
+        const n     = vals.length;
+        if (!n) return;
+
+        const line    = document.getElementById(`scl-${id}`);
+        const dot     = document.getElementById(`scd-${id}`);
+        const tip     = document.getElementById(`sct-${id}`);
+        const tipVal  = tip?.querySelector('.wx-tooltip-val');
+        const timeLbl = document.getElementById(`sctm-${id}`);
+
+        function getY(idx) {
+          const wrap = card.querySelector('.wx-spk-wrap');
+          if (!wrap) {
+            const bars = card.querySelectorAll('.wx-wind-bar');
+            if (bars[idx]) {
+              const br = bars[idx].getBoundingClientRect();
+              const cr = card.getBoundingClientRect();
+              return br.top - cr.top;
+            }
+            return card.offsetHeight / 2;
+          }
+          const H = 62, pad = 8;
+          const lo = Math.min(...vals) - 1, hi = Math.max(...vals) + 1;
+          const yRatio = pad/H + (1 - (vals[idx] - lo) / ((hi - lo) || 1)) * (1 - pad*2/H);
+          return wrap.offsetTop + yRatio * wrap.offsetHeight;
+        }
+
+        function onMove(clientX) {
+          const rect = card.getBoundingClientRect();
+          const xPct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+          const idx  = Math.round(xPct * (n - 1));
+          const xPx  = xPct * rect.width;
+
+          if (line) { line.style.left = `${xPx}px`; line.style.opacity = '1'; }
+
+          const dotY = getY(idx);
+          if (dot) { dot.style.left = `${xPx}px`; dot.style.top = `${dotY}px`; dot.style.opacity = '1'; }
+
+          if (tip && tipVal) {
+            tipVal.textContent = `${vals[idx]}${unit}`;
+            const tipW = 56;
+            const clampedX = Math.max(tipW/2, Math.min(rect.width - tipW/2, xPx));
+            tip.style.left    = `${clampedX}px`;
+            tip.style.opacity = '1';
+          }
+          if (timeLbl) {
+            timeLbl.textContent = lbls[idx] || '';
+            const lblW = 28;
+            const clampedT = Math.max(lblW/2, Math.min(rect.width - lblW/2, xPx));
+            timeLbl.style.left    = `${clampedT}px`;
+            timeLbl.style.opacity = '1';
+          }
+
+          if (id === 'wind') {
+            card.querySelectorAll('.wx-wind-bar').forEach((bar, i) => {
+              bar.style.opacity = (i === idx) ? '1' : '0.3';
+            });
+          }
+        }
+
+        function onLeave() {
+          if (line) line.style.opacity = '0';
+          if (dot)  dot.style.opacity  = '0';
+          if (tip)  tip.style.opacity  = '0';
+          if (timeLbl) timeLbl.style.opacity = '0';
+          if (id === 'wind') {
+            card.querySelectorAll('.wx-wind-bar').forEach(bar => {
+              bar.style.opacity = bar.classList.contains('is-target') ? '1' : '';
+            });
+          }
+        }
+
+        scrub.addEventListener('mousemove',  e => onMove(e.clientX));
+        scrub.addEventListener('mouseleave', onLeave);
+        scrub.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e.touches[0].clientX); }, { passive: false });
+        scrub.addEventListener('touchend',   onLeave);
       });
     }
 
@@ -988,7 +1511,7 @@
           fetchLiveCurrents(startDate),
         ]);
         const events = buildSequence(allCurrents, startKey);
-        renderResult(wx, events, startKey);
+        renderResult(wx, events, startKey, startDate);
       } catch (err) {
         renderError(err.message || String(err));
       } finally {

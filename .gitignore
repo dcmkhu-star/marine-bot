@@ -1,8 +1,35 @@
+# Dependencies
 node_modules/
-*.txt
-find-*.js
-inspect-*.js
-search-*.js
-package-lock.json
-package.json
+
+# Environment variables — never commit these
+.env
+.env.local
+.env.*.local
+
+# Vercel build output
+.vercel
+
+# Dev-only scripts and their output files
+find-builduser.js
+find-dpapi.js
+find-dpapi-output.txt
+find-fetchStation.js
+find-fetchStation-output.txt
+inspect-currents-api.js
+inspect-currents-api.txt
+inspect-pages.js
+inspect-raw.js
+inspect-raw-output.txt
+search-fetchcall.js
+search-fields.js
+search-params.js
+test-currents-api.js
+test-nws.js
+
+# Unrelated files that ended up in the project folder
 ideathon Final.pptx
+STUDY ON INVESTMENT PATTERNS OF INVESTORS ING.pdf
+
+# OS junk
+.DS_Store
+Thumbs.db
