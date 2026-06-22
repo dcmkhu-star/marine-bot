@@ -181,6 +181,36 @@
       letter-spacing: 0.3px;
     }
 
+    /* ── Nav pill (top-left → On the Water) ── */
+    .nav-pill {
+      position: fixed;
+      top: 18px;
+      left: 20px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--fg-secondary);
+      font: 500 0.72rem var(--font-sans);
+      letter-spacing: 0.3px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base);
+    }
+    .nav-pill:hover {
+      background: var(--bg-chip);
+      border-color: var(--border-strong);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+    }
+    .nav-pill-icon { font-size: 1rem; line-height: 1; }
+
     /* ── Header ── */
     .header {
       text-align: center;
@@ -573,6 +603,13 @@
       font-style: italic;
       color: #c8972a;
       letter-spacing: -0.5px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color var(--dur-base), text-shadow var(--dur-base);
+    }
+    a.dka-logo:hover {
+      color: #e0ad3a;
+      text-shadow: 0 0 14px rgba(200,151,42,0.45);
     }
 
     /* ── Weather 2×2 grid ── */
@@ -868,6 +905,12 @@
 </head>
 <body>
 
+  <!-- Nav pill — fixed top-left → On the Water -->
+  <a class="nav-pill" href="on-the-water.html" title="Kayak &amp; paddleboard workouts and games">
+    <span class="nav-pill-icon">🛶</span>
+    <span>On the Water</span>
+  </a>
+
   <!-- Theme toggle — fixed top-right -->
   <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
     <span class="theme-icon theme-icon-moon">🌙</span>
@@ -949,7 +992,7 @@
   <div class="foot">
     <div class="tagline">A quick check before the next launch — tide, current, wind, in one breath.</div>
     <div class="small">Data: NOAA Tides &amp; Currents &middot; NWS &middot; <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1928_12" target="_blank" rel="noopener">NYH1928 Pier 92</a> &middot; <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions?id=NYH1927_13" target="_blank" rel="noopener">NYH1927 HR Entrance</a></div>
-    <div class="dka-credit">Designed &amp; Published by &nbsp;<span class="dka-logo">DKA.</span></div>
+    <div class="dka-credit">Designed &amp; Published by &nbsp;<a class="dka-logo" href="https://dineshka.com" target="_blank" rel="noopener">DKA.</a></div>
   </div>
 
   <script>

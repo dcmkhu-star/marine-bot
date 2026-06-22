@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On the Water — Hudson Marine Bot</title>
+  <meta name="description" content="Kayak & paddleboard workouts and games — a filterable companion to the Hudson Marine Bot." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --hudson-950: #050b15;
+      --hudson-900: #07111f;
+      --hudson-800: #0b1a2c;
+      --hudson-700: #0d1f2f;
+      --hudson-600: #14304a;
+
+      --cove-700: #0369a1;
+      --cove-600: #0891b2;
+      --cove-500: #22c0f0;
+      --cove-400: #56ccf9;
+      --cove-300: #a0e4ff;
+      --cove-200: #c0dff0;
+      --cove-100: #dff0fa;
+      --cove-50:  #eef8ff;
+
+      --foam-50:  #ffffff;
+      --slate-500: #2a5068;
+      --slate-400: #6a9ab4;
+      --slate-300: #8abcd4;
+      --slate-200: #a0cce0;
+
+      --sunset-500: #fb923c;
+      --coral-500:  #f87171;
+      --reef-500:   #4ade80;
+
+      /* — Dark mode surfaces (default) — */
+      --bg-app:          var(--hudson-900);
+      --bg-card:         rgba(255,255,255,0.04);
+      --bg-input:        rgba(255,255,255,0.06);
+      --bg-chip:         rgba(255,255,255,0.05);
+      --bg-overlay-soft: rgba(0,0,0,0.25);
+      --bg-select-opt:   var(--hudson-700);
+
+      --fg-strong:    var(--foam-50);
+      --fg-default:   var(--cove-50);
+      --fg-secondary: var(--cove-100);
+      --fg-muted:     var(--slate-300);
+      --fg-link:      var(--cove-400);
+
+      --border-soft:    rgba(255,255,255,0.04);
+      --border-default: rgba(255,255,255,0.08);
+      --border-strong:  rgba(255,255,255,0.12);
+      --border-focus:   var(--cove-400);
+
+      --signal-flood: var(--cove-400);
+      --signal-ebb:   var(--sunset-500);
+      --signal-slack: var(--reef-500);
+      --signal-error: var(--coral-500);
+
+      --signal-flood-fill: rgba(56,189,248,0.15);
+      --signal-flood-edge: rgba(56,189,248,0.25);
+      --signal-ebb-fill:   rgba(251,146,60,0.15);
+      --signal-ebb-edge:   rgba(251,146,60,0.20);
+      --signal-slack-fill: rgba(74,222,128,0.12);
+      --signal-slack-edge: rgba(74,222,128,0.18);
+
+      --grad-cove: linear-gradient(90deg, var(--cove-700), var(--cove-600));
+
+      --font-sans:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-display: 'Fraunces', 'Inter', serif;
+      --font-mono:    'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --t-h1:      700 1.75rem/1.15 var(--font-sans);
+      --t-h3:      600 1.05rem/1.25 var(--font-sans);
+      --t-body:    400 0.95rem/1.5  var(--font-sans);
+      --t-input:   400 0.9rem/1.3   var(--font-sans);
+      --t-label:   500 0.7rem/1.2   var(--font-sans);
+      --t-section: 600 0.68rem/1.2  var(--font-sans);
+      --t-badge:   600 0.78rem/1    var(--font-sans);
+      --t-button:  600 0.95rem/1    var(--font-sans);
+      --t-mono-sm: 400 0.78rem/1.6  var(--font-mono);
+
+      --track-tight:   -0.5px;
+      --track-wide:    0.4px;
+      --track-widest:  0.8px;
+
+      --space-6: 24px;
+      --r-sm: 10px; --r-md: 12px; --r-lg: 14px; --r-xl: 18px; --r-pill: 99px;
+
+      --shadow-submit: 0 6px 20px rgba(8,145,178,0.45);
+      --blur-glass: blur(16px);
+      --ease-out: cubic-bezier(0.2,0,0,1);
+      --dur-fast: 0.15s; --dur-base: 0.2s; --dur-slow: 0.3s;
+      --w-content: 1080px;
+    }
+
+    /* ── Light mode overrides ── */
+    [data-theme="light"] {
+      --bg-app:          #eaf4fb;
+      --bg-card:         rgba(255,255,255,0.88);
+      --bg-input:        rgba(0,0,0,0.045);
+      --bg-chip:         rgba(0,0,0,0.04);
+      --bg-overlay-soft: rgba(255,255,255,0.7);
+      --bg-select-opt:   #ffffff;
+
+      --fg-strong:    #0a1520;
+      --fg-default:   #0d2233;
+      --fg-secondary: #1a4060;
+      --fg-muted:     #4a7a94;
+      --fg-link:      var(--cove-700);
+
+      --border-soft:    rgba(0,0,0,0.05);
+      --border-default: rgba(0,0,0,0.09);
+      --border-strong:  rgba(0,0,0,0.14);
+      --border-focus:   var(--cove-600);
+
+      --signal-flood-fill: rgba(3,105,161,0.1);
+      --signal-flood-edge: rgba(3,105,161,0.22);
+      --signal-ebb-fill:   rgba(194,65,12,0.1);
+      --signal-ebb-edge:   rgba(194,65,12,0.18);
+      --signal-slack-fill: rgba(22,163,74,0.1);
+      --signal-slack-edge: rgba(22,163,74,0.18);
+
+      --shadow-submit: 0 6px 20px rgba(3,105,161,0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg-app);
+      color: var(--fg-default);
+      font: var(--t-body);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.25s, color 0.25s;
+    }
+    body {
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Nav pill (top-left → back) ── */
+    .nav-pill {
+      position: fixed;
+      top: 18px;
+      left: 20px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--fg-secondary);
+      font: 500 0.72rem var(--font-sans);
+      letter-spacing: 0.3px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base);
+    }
+    .nav-pill:hover {
+      background: var(--bg-chip);
+      border-color: var(--border-strong);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+    }
+    .nav-pill-icon { font-size: 1rem; line-height: 1; }
+
+    /* ── Theme toggle (top-right) ── */
+    .theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base), box-shadow var(--dur-base);
+    }
+    .theme-toggle:hover {
+      background: var(--bg-chip);
+      border-color: var(--border-strong);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .theme-icon { font-size: 1rem; line-height: 1; }
+    .theme-icon-sun  { display: none; }
+    .theme-icon-moon { display: block; }
+    [data-theme="light"] .theme-icon-sun  { display: block; }
+    [data-theme="light"] .theme-icon-moon { display: none; }
+    .theme-label {
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin: 28px 0 24px;
+      width: 100%;
+      max-width: var(--w-content);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font: var(--t-h1);
+      color: var(--fg-strong);
+      letter-spacing: var(--track-tight);
+    }
+    .header .subtitle {
+      font-size: 0.92rem;
+      color: var(--fg-muted);
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Card base ── */
+    .card {
+      width: 100%;
+      max-width: var(--w-content);
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-xl);
+      padding: var(--space-6);
+      margin-bottom: 18px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      transition: background var(--dur-base), border-color var(--dur-base);
+    }
+
+    /* ── Filter bar ── */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-row:last-of-type { margin-bottom: 0; }
+    .filter-label {
+      font: var(--t-section);
+      text-transform: uppercase;
+      letter-spacing: var(--track-widest);
+      color: var(--fg-muted);
+      min-width: 84px;
+      flex-shrink: 0;
+    }
+    .chip-group { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 14px;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--border-default);
+      background: var(--bg-chip);
+      color: var(--fg-muted);
+      font: 500 0.78rem var(--font-sans);
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      transition: all var(--dur-base);
+    }
+    .chip:hover:not(.is-disabled) {
+      color: var(--fg-secondary);
+      border-color: var(--border-strong);
+    }
+    .chip.active {
+      background: var(--signal-flood-fill);
+      color: var(--cove-300);
+      border-color: var(--signal-flood-edge);
+    }
+    [data-theme="light"] .chip.active { color: var(--cove-700); }
+    .chip.is-disabled {
+      opacity: 0.32;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .filter-divider {
+      height: 1px;
+      background: var(--border-soft);
+      margin: 16px 0 12px;
+    }
+    .count-line {
+      font: var(--t-label);
+      color: var(--fg-muted);
+      letter-spacing: 0.4px;
+    }
+    .count-line strong { color: var(--fg-secondary); font-weight: 600; }
+
+    /* ── Grid ── */
+    .grid {
+      width: 100%;
+      max-width: var(--w-content);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+
+    .no-results {
+      width: 100%;
+      max-width: var(--w-content);
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--fg-muted);
+      font-size: 0.95rem;
+    }
+    .no-results .nr-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+    /* ── Activity card ── */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .activity-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-lg);
+      padding: 16px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      opacity: 0;
+      animation: cardIn var(--dur-slow) var(--ease-out) forwards;
+      transition: transform var(--dur-base), box-shadow var(--dur-base), border-color var(--dur-base);
+    }
+    .activity-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    }
+    [data-theme="light"] .activity-card:hover { box-shadow: 0 8px 22px rgba(3,105,161,0.12); }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .craft-icon { font-size: 1.45rem; line-height: 1; }
+    .type-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 11px;
+      border-radius: var(--r-pill);
+      font: var(--t-badge);
+      letter-spacing: 0.2px;
+    }
+    .tag-workout {
+      background: var(--signal-flood-fill);
+      color: var(--cove-300);
+      border: 1px solid var(--signal-flood-edge);
+    }
+    [data-theme="light"] .tag-workout { color: var(--cove-700); }
+    .tag-game {
+      background: var(--signal-ebb-fill);
+      color: var(--sunset-500);
+      border: 1px solid var(--signal-ebb-edge);
+    }
+    [data-theme="light"] .tag-game { color: #c2410c; }
+
+    .card-name {
+      font: 600 1rem/1.25 var(--font-sans);
+      color: var(--fg-strong);
+      letter-spacing: -0.2px;
+    }
+    .card-desc {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--fg-muted);
+      flex: 1;
+    }
+
+    .card-foot {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 2px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .dot-meter { display: inline-flex; gap: 4px; flex-shrink: 0; }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+    .diff-label {
+      font: 500 0.74rem var(--font-sans);
+      color: var(--fg-secondary);
+      letter-spacing: 0.2px;
+    }
+    .diff-label .score { color: var(--fg-muted); }
+    .gear-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font: 500 0.78rem var(--font-sans);
+      color: var(--fg-secondary);
+      letter-spacing: 0.2px;
+    }
+    .gear-icon { font-size: 1rem; line-height: 1; }
+
+    /* ── Footer ── */
+    .foot {
+      margin-top: 28px;
+      padding: 16px 4px 0;
+      max-width: var(--w-content);
+      width: 100%;
+      text-align: center;
+    }
+    .foot .safety {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.95rem;
+      color: var(--fg-secondary);
+      text-wrap: pretty;
+    }
+    .foot .small {
+      margin-top: 10px;
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.4px;
+    }
+    .dka-credit {
+      margin-top: 18px;
+      font: 500 0.7rem var(--font-sans);
+      color: var(--fg-muted);
+      letter-spacing: 0.3px;
+    }
+    .dka-logo {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #c8972a;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color var(--dur-base), text-shadow var(--dur-base);
+    }
+    a.dka-logo:hover {
+      color: #e0ad3a;
+      text-shadow: 0 0 14px rgba(200,151,42,0.45);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav pill — fixed top-left → back to Marine Bot -->
+  <a class="nav-pill" href="Hudson_Marine_Bot.html" title="Back to the Hudson Marine Bot">
+    <span class="nav-pill-icon">&larr;</span>
+    <span>Marine Bot</span>
+  </a>
+
+  <!-- Theme toggle — fixed top-right -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
+    <span class="theme-icon theme-icon-moon">🌙</span>
+    <span class="theme-icon theme-icon-sun">☀️</span>
+    <span class="theme-label" id="themeLabel">Dark</span>
+  </button>
+
+  <div class="header">
+    <div class="header-top">
+      <span style="font-size:1.6rem;line-height:1;">🛶</span>
+      <h1>On the Water</h1>
+    </div>
+    <div class="subtitle">Kayak &amp; paddleboard workouts and games</div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="card">
+    <div class="filter-row">
+      <span class="filter-label">Craft</span>
+      <div class="chip-group" id="craftFilter">
+        <button class="chip active" data-val="all" type="button">All</button>
+        <button class="chip" data-val="kayak" type="button">🛶 Kayak</button>
+        <button class="chip" data-val="sup" type="button">🏄 Paddleboard</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Type</span>
+      <div class="chip-group" id="typeFilter">
+        <button class="chip active" data-val="all" type="button">All</button>
+        <button class="chip" data-val="workout" type="button">💪 Workouts</button>
+        <button class="chip" data-val="game" type="button">🎮 Games</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Difficulty</span>
+      <div class="chip-group" id="diffFilter">
+        <button class="chip active" data-val="all" type="button">All</button>
+        <button class="chip" data-val="1" type="button">🟢 Beg</button>
+        <button class="chip" data-val="2" type="button">🔵 Mod</button>
+        <button class="chip" data-val="3" type="button">🟠 Hard</button>
+        <button class="chip" data-val="4" type="button">🔴 Expert</button>
+      </div>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="count-line" id="countLine">Showing <strong>70</strong> of 70 activities</div>
+  </div>
+
+  <!-- Grid host -->
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <div class="safety">Always wear a PFD, check conditions before you launch, and never paddle alone in unfamiliar water.</div>
+    <div class="small">A companion to the Hudson Marine Bot — 20 kayak workouts · 15 kayak games · 20 SUP workouts · 15 SUP games</div>
+    <div class="dka-credit">Designed &amp; Published by &nbsp;<a class="dka-logo" href="https://dineshka.com" target="_blank" rel="noopener">DKA.</a></div>
+  </div>
+
+  <script>
+    // ── Data: 70 activities, in listed order ──
+    // craft: 'kayak' | 'sup'  ·  type: 'workout' | 'game'
+    // workouts → tier (1 Beginner, 2 Moderate, 3 Hard, 4 Expert) + score (1-10)
+    // games → gear (label string, drives the gear icon)
+    const ACTIVITIES = [
+      // ── SECTION 1 — KAYAK WORKOUTS ──
+      { craft:"kayak", type:"workout", name:"Flat Water Cruise",      desc:"Relaxed forward paddling, 20–30 min, no pace pressure.",                  tier:1, score:1 },
+      { craft:"kayak", type:"workout", name:"Sit & Stretch Paddle",   desc:"Gentle 15-min paddle, stop every 5 min for torso stretches.",            tier:1, score:1 },
+      { craft:"kayak", type:"workout", name:"Figure-8 Loop",          desc:"Slow wide figure-8 around 2 buoys — steering practice.",                  tier:1, score:2 },
+      { craft:"kayak", type:"workout", name:"Paddle & Glide",         desc:"10 strokes hard, then glide. Repeat for 20 min.",                        tier:1, score:2 },
+      { craft:"kayak", type:"workout", name:"Reverse Lap",            desc:"5-min backwards paddling laps — builds awareness & shoulders.",          tier:1, score:3 },
+      { craft:"kayak", type:"workout", name:"Side Stroke Drill",      desc:"Draw strokes only, move kayak sideways — 3 sets of 10.",                 tier:1, score:3 },
+      { craft:"kayak", type:"workout", name:"30/30 Intervals",        desc:"30 sec hard, 30 sec easy, repeat 10 rounds.",                            tier:2, score:4 },
+      { craft:"kayak", type:"workout", name:"360 Spin Challenge",     desc:"Spin a full circle left then right, fast as possible, 5 reps each.",      tier:2, score:4 },
+      { craft:"kayak", type:"workout", name:"Distance Builder",       desc:"2 miles steady pace, no stopping. Track via GPS.",                       tier:2, score:5 },
+      { craft:"kayak", type:"workout", name:"Torso Twist Sprints",    desc:"Exaggerated torso rotation, 10 min straight, arms nearly locked.",       tier:2, score:5 },
+      { craft:"kayak", type:"workout", name:"Pyramid Intervals",      desc:"1/1, 2/1, 3/2 min hard/rest, then back down.",                           tier:2, score:6 },
+      { craft:"kayak", type:"workout", name:"Edging Drill",           desc:"Lean kayak onto edge while paddling turns, 20 min.",                     tier:2, score:6 },
+      { craft:"kayak", type:"workout", name:"Current Fight",          desc:"Paddle directly against mild current for 10 min, rest, repeat.",          tier:3, score:7 },
+      { craft:"kayak", type:"workout", name:"5K Time Trial",          desc:"Paddle 5km as fast as possible. Beat it weekly.",                        tier:3, score:7 },
+      { craft:"kayak", type:"workout", name:"High-Cadence Blitz",     desc:"Max stroke rate for 1 min, 30 sec rest × 8 rounds.",                     tier:3, score:8 },
+      { craft:"kayak", type:"workout", name:"Brace & Roll Drill",     desc:"Low brace and wet exit recovery in controlled conditions.",              tier:3, score:8 },
+      { craft:"kayak", type:"workout", name:"Negative Split Race",    desc:"4km — first half easy, second half faster than the first.",              tier:4, score:9 },
+      { craft:"kayak", type:"workout", name:"Whitewater Entry",       desc:"Navigate mild moving-water features, ferry across currents.",            tier:4, score:9 },
+      { craft:"kayak", type:"workout", name:"10K Endurance Haul",     desc:"Full 10km paddle, consistent stroke rate throughout.",                   tier:4, score:10 },
+      { craft:"kayak", type:"workout", name:"Eskimo Roll Practice",   desc:"Full capsize + self-rescue roll, repeated 10× per session.",             tier:4, score:10 },
+
+      // ── SECTION 2 — KAYAK GAMES ──
+      { craft:"kayak", type:"game", name:"Kayak Tag",                 desc:"Touch another kayak to tag them. Last untagged wins.",                   gear:"No gear" },
+      { craft:"kayak", type:"game", name:"Freeze Paddle",            desc:"Freeze on command — first to move or tip loses.",                        gear:"No gear" },
+      { craft:"kayak", type:"game", name:"Kayak Limbo",              desc:"Lean back, paddle under a rope or noodle. Lower each round.",            gear:"Rope/noodle" },
+      { craft:"kayak", type:"game", name:"Drift Race",               desc:"No paddling — whoever drifts furthest downwind in 2 min wins.",          gear:"No gear" },
+      { craft:"kayak", type:"game", name:"Mirror Follow",            desc:"Leader does random moves, partner mirrors exactly. Swap every 3 min.",   gear:"No gear" },
+      { craft:"kayak", type:"game", name:"Blindfold Navigate",       desc:"One paddler blindfolded, partner calls directions to a buoy.",           gear:"Blindfold" },
+      { craft:"kayak", type:"game", name:"Splash War",               desc:"Splash opponents with your blade — last dry paddler wins.",              gear:"No gear" },
+      { craft:"kayak", type:"game", name:"Kayak Polo",               desc:"Pass a ball, score into a floating goal. No touching other kayaks.",     gear:"Ball" },
+      { craft:"kayak", type:"game", name:"Kayak Basketball",         desc:"Toss a ball into an opponent's cockpit to score.",                       gear:"Ball" },
+      { craft:"kayak", type:"game", name:"Ring Toss Float",          desc:"Throw rings onto a floating buoy spike — closest scores.",               gear:"Rings" },
+      { craft:"kayak", type:"game", name:"Paddle Joust",             desc:"Face off and try to knock each other sideways with a padded pole.",      gear:"Padded pole" },
+      { craft:"kayak", type:"game", name:"Dead Fish Polo",           desc:"Flip a sponge into an opponent's cockpit with your paddle blade.",       gear:"Sponge" },
+      { craft:"kayak", type:"game", name:"Noodle Relay",             desc:"Balance a pool noodle across your kayak, point A to B, relay style.",    gear:"Pool noodle" },
+      { craft:"kayak", type:"game", name:"Floating Scavenger Hunt",  desc:"Collect 5 scattered floating items, return to start fastest.",           gear:"Floating toys" },
+      { craft:"kayak", type:"game", name:"Frisbee Kayak",            desc:"Catch a frisbee thrown from shore. Most catches in 10 throws wins.",     gear:"Frisbee" },
+
+      // ── SECTION 3 — PADDLEBOARD (SUP) WORKOUTS ──
+      { craft:"sup", type:"workout", name:"Kneeling Cruise",             desc:"Paddle the entire session on your knees — easiest way to start.",        tier:1, score:1 },
+      { craft:"sup", type:"workout", name:"Stand & Balance Hold",        desc:"Stand still without paddling, 1-min sets, build balance.",               tier:1, score:1 },
+      { craft:"sup", type:"workout", name:"Slow Stroke Tour",            desc:"20 min relaxed standing paddle, focus on form.",                         tier:1, score:2 },
+      { craft:"sup", type:"workout", name:"SUP Yoga — Seated Poses",     desc:"Child's pose, seated twist, seated forward fold, anchored board.",        tier:1, score:2 },
+      { craft:"sup", type:"workout", name:"Board Plank",                 desc:"Hold plank on the board — 3 sets of 30 sec, rest between.",              tier:1, score:3 },
+      { craft:"sup", type:"workout", name:"SUP Squat Set",               desc:"3 sets of 12 squats standing on board, slow and controlled.",            tier:1, score:3 },
+      { craft:"sup", type:"workout", name:"Lunge Walk",                  desc:"Step lunges down the board length, back and forth, 5 sets.",             tier:2, score:4 },
+      { craft:"sup", type:"workout", name:"SUP Push-Ups",                desc:"Standard push-ups on board — core stabilizes against water.",            tier:2, score:4 },
+      { craft:"sup", type:"workout", name:"Sprint Intervals",            desc:"1 min all-out paddle, 2 min easy × 8 rounds.",                           tier:2, score:5 },
+      { craft:"sup", type:"workout", name:"SUP Yoga — Standing Poses",   desc:"Warrior I, Warrior II, Tree Pose — on moving water.",                    tier:2, score:5 },
+      { craft:"sup", type:"workout", name:"SUP Sit-Ups",                 desc:"3 sets of 15 sit-ups — water instability doubles core work.",            tier:2, score:6 },
+      { craft:"sup", type:"workout", name:"One-Legged Balance Paddle",   desc:"5 strokes per foot, switching. 15 min total.",                           tier:2, score:6 },
+      { craft:"sup", type:"workout", name:"Distance Tour",               desc:"5km at race pace, no rest stops.",                                       tier:3, score:7 },
+      { craft:"sup", type:"workout", name:"SUP Burpees",                 desc:"Stand → plank → push-up → jump up. 5 sets of 8, on water.",              tier:3, score:7 },
+      { craft:"sup", type:"workout", name:"Tandem Sync Paddle",          desc:"Two people, one wide board, perfect sync for 1km.",                      tier:3, score:8 },
+      { craft:"sup", type:"workout", name:"SUP Yoga Flow",               desc:"20-min flowing sequence — Downward Dog, Plank, Cobra.",                  tier:3, score:8 },
+      { craft:"sup", type:"workout", name:"Crosswind Battle",            desc:"Hold a straight line across a windy section — wind fights you.",         tier:4, score:9 },
+      { craft:"sup", type:"workout", name:"SUP Race Pace 10K",           desc:"10km at sustained race effort, track your splits.",                      tier:4, score:9 },
+      { craft:"sup", type:"workout", name:"Headstand on SUP",            desc:"Inversion headstand / shoulder stand, held 15 sec, anchored board.",     tier:4, score:10 },
+      { craft:"sup", type:"workout", name:"SUP Surfing Entry",           desc:"Paddle into and ride small waves, standing. Needs surf/wake.",            tier:4, score:10 },
+
+      // ── SECTION 4 — PADDLEBOARD (SUP) GAMES ──
+      { craft:"sup", type:"game", name:"SUP Tag",            desc:"Tap someone and they sit for 10 sec. Last standing wins.",               gear:"No gear" },
+      { craft:"sup", type:"game", name:"King of the Board",  desc:"Two boards, gently knock the other person into the water.",              gear:"No gear" },
+      { craft:"sup", type:"game", name:"SUP Freeze",         desc:"Freeze on command — anyone who wobbles or falls is out.",                gear:"No gear" },
+      { craft:"sup", type:"game", name:"Pose Battle",        desc:"Everyone holds the same yoga pose — last to fall wins the round.",        gear:"No gear" },
+      { craft:"sup", type:"game", name:"Paddle Limbo",       desc:"Lean back, paddle under a rope. Lower it each round.",                   gear:"Rope" },
+      { craft:"sup", type:"game", name:"Spin Race",          desc:"Rotate your board 360° as fast as possible — best time wins.",           gear:"No gear" },
+      { craft:"sup", type:"game", name:"Blindfold SUP",      desc:"Blindfolded paddler, teammates shout directions to a buoy.",             gear:"Blindfold" },
+      { craft:"sup", type:"game", name:"SUP Polo",           desc:"Pass a ball by hand or paddle, score into a goal. Gentle contact ok.",   gear:"Ball" },
+      { craft:"sup", type:"game", name:"Ring Catch Relay",   desc:"Catch thrown rings on your paddle blade — most caught wins.",            gear:"Rings" },
+      { craft:"sup", type:"game", name:"SUP Jousting",       desc:"Charge an opponent, knock them off the board with a pool noodle.",       gear:"Pool noodle" },
+      { craft:"sup", type:"game", name:"Frisbee SUP",        desc:"Catch a frisbee while standing — a drop counts against you.",            gear:"Frisbee" },
+      { craft:"sup", type:"game", name:"Noodle Sumo",        desc:"Two people, one board, push each other off using only noodles.",         gear:"Pool noodle" },
+      { craft:"sup", type:"game", name:"Treasure Scatter",   desc:"Scatter 20 floating items — first back with 10 wins.",                   gear:"Floating toys" },
+      { craft:"sup", type:"game", name:"SUP Volleyball",     desc:"Two anchored boards as net posts, hit a beach ball over a rope.",        gear:"Ball" },
+      { craft:"sup", type:"game", name:"Tandem Joust",       desc:"2v2 — one paddles, one stands and jousts. Knock opponents off.",         gear:"Pool noodle" },
+    ];
+
+    const TOTAL = ACTIVITIES.length; // 70
+
+    // ── Lookups ──
+    const TIER = {
+      1: { name: "Beginner", color: "var(--reef-500)" },
+      2: { name: "Moderate", color: "var(--cove-400)" },
+      3: { name: "Hard",     color: "var(--sunset-500)" },
+      4: { name: "Expert",   color: "var(--coral-500)" },
+    };
+    const CRAFT_ICON = { kayak: "🛶", sup: "🏄" };
+
+    function gearIcon(gear) {
+      const g = String(gear).toLowerCase();
+      if (g === "no gear")          return "✋";
+      if (g.includes("rope"))       return "🪢"; // rope / rope+noodle
+      if (g.includes("pool noodle"))return "🍢";
+      if (g.includes("ring"))       return "⭕";
+      if (g.includes("ball"))       return "🏐";
+      if (g.includes("padded pole"))return "🥢";
+      if (g.includes("sponge"))     return "🧽";
+      if (g.includes("floating"))   return "🧸";
+      if (g.includes("frisbee"))    return "🥏";
+      if (g.includes("blindfold"))  return "🙈";
+      return "🎯";
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    }
+
+    // ── Filter state ──
+    const state = { craft: "all", type: "all", diff: "all" };
+
+    function diffApplies() {
+      // Difficulty only filters workouts; ignored for "All" types or "Games"
+      return state.type === "workout";
+    }
+
+    function matches(a) {
+      if (state.craft !== "all" && a.craft !== state.craft) return false;
+      if (state.type  !== "all" && a.type  !== state.type)  return false;
+      if (diffApplies() && state.diff !== "all") {
+        // a is guaranteed a workout here (type filter == workout)
+        if (a.tier !== +state.diff) return false;
+      }
+      return true;
+    }
+
+    function cardHtml(a, i) {
+      const craftIcon = CRAFT_ICON[a.craft] || "💧";
+      const tagClass  = a.type === "workout" ? "tag-workout" : "tag-game";
+      const tagLabel  = a.type === "workout" ? "Workout" : "Game";
+
+      let footHtml;
+      if (a.type === "workout") {
+        const t = TIER[a.tier] || TIER[1];
+        const filled = Math.max(1, Math.ceil(a.score / 2)); // 5-dot meter from 1-10 score
+        let dots = "";
+        for (let d = 0; d < 5; d++) {
+          dots += `<span class="dot" style="${d < filled ? `background:${t.color};` : ""}"></span>`;
+        }
+        footHtml = `
+          <div class="dot-meter">${dots}</div>
+          <span class="diff-label">${escapeHtml(t.name)} <span class="score">· ${a.score}/10</span></span>`;
+      } else {
+        footHtml = `
+          <span class="gear-line"><span class="gear-icon">${gearIcon(a.gear)}</span>${escapeHtml(a.gear)}</span>`;
+      }
+
+      return `
+        <div class="activity-card" style="animation-delay:${Math.min(i, 18) * 22}ms">
+          <div class="card-top">
+            <span class="craft-icon">${craftIcon}</span>
+            <span class="type-tag ${tagClass}">${tagLabel}</span>
+          </div>
+          <div class="card-name">${escapeHtml(a.name)}</div>
+          <div class="card-desc">${escapeHtml(a.desc)}</div>
+          <div class="card-foot">${footHtml}</div>
+        </div>`;
+    }
+
+    const grid = document.getElementById("grid");
+    const countLine = document.getElementById("countLine");
+
+    function render() {
+      const shown = ACTIVITIES.filter(matches);
+      countLine.innerHTML = `Showing <strong>${shown.length}</strong> of ${TOTAL} activities`;
+
+      if (!shown.length) {
+        grid.style.display = "block";
+        grid.innerHTML = `
+          <div class="no-results">
+            <span class="nr-icon">🌊</span>
+            No activities match these filters.<br>Try widening your selection.
+          </div>`;
+        return;
+      }
+      grid.style.display = "grid";
+      grid.innerHTML = shown.map(cardHtml).join("");
+    }
+
+    // ── Wire filter chip groups ──
+    function wireGroup(groupId, key) {
+      const group = document.getElementById(groupId);
+      group.addEventListener("click", e => {
+        const chip = e.target.closest(".chip");
+        if (!chip || chip.classList.contains("is-disabled")) return;
+        state[key] = chip.dataset.val;
+        group.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === chip));
+        if (key === "type") syncDiffEnabled();
+        render();
+      });
+    }
+
+    function syncDiffEnabled() {
+      // Grey out difficulty chips when they don't apply (All types or Games)
+      const enabled = diffApplies();
+      document.querySelectorAll("#diffFilter .chip").forEach(c => {
+        c.classList.toggle("is-disabled", !enabled);
+      });
+    }
+
+    wireGroup("craftFilter", "craft");
+    wireGroup("typeFilter", "type");
+    wireGroup("diffFilter", "diff");
+
+    // ── Theme toggle (shares preference with the Marine Bot page) ──
+    const themeToggle = document.getElementById("themeToggle");
+    const themeLabel  = document.getElementById("themeLabel");
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      themeLabel.textContent = theme === "dark" ? "Dark" : "Light";
+      try { localStorage.setItem("hmbTheme", theme); } catch {}
+    }
+    themeToggle.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+    });
+    try {
+      const saved = localStorage.getItem("hmbTheme");
+      if (saved === "light" || saved === "dark") applyTheme(saved);
+    } catch {}
+
+    // ── Boot ──
+    syncDiffEnabled();
+    render();
+  </script>
+</body>
+</html>
