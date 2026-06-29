@@ -637,6 +637,56 @@
     }
     @media (max-width: 440px) { .wx-grid { grid-template-columns: 1fr; } }
 
+    /* ── Weather visuals: loading % + skeleton boxes ── */
+    .wx-section-label { margin-top: 22px; }
+    .wx-loading { display: inline-flex; align-items: center; gap: 8px; }
+    .wx-loading-track {
+      width: 64px; height: 5px;
+      border-radius: var(--r-pill);
+      background: var(--border-default);
+      overflow: hidden;
+    }
+    .wx-loading-fill {
+      display: block; height: 100%; width: 0%;
+      border-radius: var(--r-pill);
+      background: linear-gradient(90deg, var(--cove-500), var(--cove-300));
+      transition: width 0.2s var(--ease-out);
+    }
+    .wx-loading-num {
+      font: 600 0.68rem var(--font-mono);
+      color: var(--cove-300);
+      letter-spacing: 0.3px;
+      min-width: 34px; text-align: right;
+    }
+    [data-theme="light"] .wx-loading-num { color: var(--cove-700); }
+
+    .wx-skel { justify-content: flex-start; }
+    .wx-skel .wx-card-eyebrow { position: relative; z-index: 2; }
+    .wx-skel-value {
+      width: 54%; height: 28px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      margin: 4px 0 9px;
+      position: relative; z-index: 2;
+    }
+    .wx-skel-line {
+      width: 72%; height: 10px;
+      border-radius: 6px;
+      background: var(--bg-input);
+      position: relative; z-index: 2;
+    }
+    .wx-skel-shimmer {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.07) 50%, transparent 80%);
+      background-size: 200% 100%;
+      animation: wxShimmer 1.2s linear infinite;
+    }
+    [data-theme="light"] .wx-skel-shimmer {
+      background: linear-gradient(100deg, transparent 20%, rgba(0,0,0,0.05) 50%, transparent 80%);
+      background-size: 200% 100%;
+    }
+    @keyframes wxShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
     .wx-card {
       position: relative;
       overflow: hidden;
@@ -1286,9 +1336,17 @@
            </span>`
         : `<span class="predicted-badge"><span class="predicted-dot"></span>PREDICTED</span>`;
 
+      // Skeleton boxes shown immediately so the 4 weather cards exist while data loads
+      const wxSkeleton = ['Temperature','Wind','Sun','Precipitation'].map(l => `
+            <div class="wx-card wx-skel">
+              <div class="wx-card-eyebrow">${l}</div>
+              <div class="wx-skel-value"></div>
+              <div class="wx-skel-line"></div>
+              <div class="wx-skel-shimmer"></div>
+            </div>`).join('');
+
       els.results.innerHTML = `
         <div class="card animate-in">
-          <div id="wxGridHost"></div>
           <div class="section-label">
             <span>Tidal Currents — ${activeStation.tableLabel}</span>
             ${statusBadge}
@@ -1298,6 +1356,14 @@
             <pre class="copy-preview" id="copyPreview">${escapeHtml(copyText)}</pre>
             <button class="btn-copy" id="btnCopy" type="button">⧖ Copy</button>
           </div>
+          <div class="section-label wx-section-label">
+            <span>Conditions</span>
+            <span class="wx-loading" id="wxLoading">
+              <span class="wx-loading-track"><span class="wx-loading-fill" id="wxPctFill"></span></span>
+              <span class="wx-loading-num" id="wxPctNum">0%</span>
+            </span>
+          </div>
+          <div id="wxGridHost"><div class="wx-grid">${wxSkeleton}</div></div>
         </div>`;
 
       // Wire copy button
@@ -1311,13 +1377,17 @@
         } catch { /* swallow */ }
       });
 
+      // Animated loading % for the weather visuals (currents are already on screen above)
+      const wxProgress = startWxProgress();
+
       // Fetch & render weather grid asynchronously
       fetchWindowSeries(targetDate).then(async series => {
-        const host = document.getElementById('wxGridHost');
-        if (!host) return;
         try {
           const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://forecast.weather.gov/MapClick.php?FcstType=json&textField1=40.7198&textField2=-73.993')}`;
-          const gr = await fetch(proxy);
+          const ctrl = new AbortController();
+          const to = setTimeout(() => ctrl.abort(), 3500); // best-effort thunder check; don't let it block the grid
+          const gr = await fetch(proxy, { signal: ctrl.signal });
+          clearTimeout(to);
           if (gr.ok) {
             const gd = await gr.json();
             const texts = gd?.data?.text || [];
@@ -1325,13 +1395,46 @@
               if (texts[i] && /thunder/i.test(texts[i])) s.thunder = true;
             });
           }
-        } catch { /* silent — NWS shortForecast is primary source */ }
-        host.outerHTML = buildWeatherGrid(wx, series, targetDate);
-        attachScrubbers();
-      }).catch(() => {
+        } catch { /* silent — NWS shortForecast is the primary thunder source */ }
+        wxProgress.finish();
         const host = document.getElementById('wxGridHost');
-        if (host) host.outerHTML = '';
+        if (host) { host.innerHTML = buildWeatherGrid(wx, series, targetDate); attachScrubbers(); }
+        const ld = document.getElementById('wxLoading');
+        if (ld) ld.remove();
+      }).catch(() => {
+        wxProgress.finish();
+        const host = document.getElementById('wxGridHost');
+        if (host) host.innerHTML = '<div class="no-events-box">Weather visuals unavailable right now.</div>';
+        const ld = document.getElementById('wxLoading');
+        if (ld) ld.remove();
       });
+    }
+
+    // Simulated progress for the weather visuals while data loads in the background
+    function startWxProgress() {
+      let pct = 0, stopped = false, timer = null;
+      const apply = () => {
+        const n = document.getElementById('wxPctNum');
+        const f = document.getElementById('wxPctFill');
+        if (n) n.textContent = Math.round(pct) + '%';
+        if (f) f.style.width = pct + '%';
+      };
+      const step = () => {
+        if (stopped) return;
+        pct += Math.max(0.5, (92 - pct) * 0.07); // ease toward 92%, then hold until data lands
+        if (pct > 92) pct = 92;
+        apply();
+        timer = setTimeout(step, 110);
+      };
+      step();
+      return {
+        finish() {
+          stopped = true;
+          if (timer) clearTimeout(timer);
+          pct = 100;
+          apply();
+        }
+      };
     }
 
     // WEATHER GRID & SPARKLINE SYSTEM
