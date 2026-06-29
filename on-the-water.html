@@ -176,6 +176,22 @@
     }
     .nav-pill-icon { font-size: 1rem; line-height: 1; }
 
+    /* ── Mobile: drop the corner controls into a centered row below the header ── */
+    @media (max-width: 600px) {
+      .header { order: -1; margin-top: 4px; }
+      .topbar-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin-bottom: 18px;
+      }
+      .nav-pill, .theme-toggle {
+        position: static;
+        top: auto; left: auto; right: auto;
+      }
+    }
+
     /* ── Theme toggle (top-right) ── */
     .theme-toggle {
       position: fixed;
@@ -468,18 +484,21 @@
 </head>
 <body>
 
-  <!-- Nav pill — fixed top-left → back to Marine Bot -->
-  <a class="nav-pill" href="Hudson_Marine_Bot.html" title="Back to the Hudson Marine Bot">
-    <span class="nav-pill-icon">&larr;</span>
-    <span>Marine Bot</span>
-  </a>
+  <!-- Top controls — fixed in corners on desktop, a centered row below the header on mobile -->
+  <div class="topbar-controls">
+    <!-- Nav pill → back to Marine Bot -->
+    <a class="nav-pill" href="Hudson_Marine_Bot.html" title="Back to the Hudson Marine Bot">
+      <span class="nav-pill-icon">&larr;</span>
+      <span>Marine Bot</span>
+    </a>
 
-  <!-- Theme toggle — fixed top-right -->
-  <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
-    <span class="theme-icon theme-icon-moon">🌙</span>
-    <span class="theme-icon theme-icon-sun">☀️</span>
-    <span class="theme-label" id="themeLabel">Dark</span>
-  </button>
+    <!-- Theme toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
+      <span class="theme-icon theme-icon-moon">🌙</span>
+      <span class="theme-icon theme-icon-sun">☀️</span>
+      <span class="theme-label" id="themeLabel">Dark</span>
+    </button>
+  </div>
 
   <div class="header">
     <div class="header-top">

@@ -211,6 +211,22 @@
     }
     .nav-pill-icon { font-size: 1rem; line-height: 1; }
 
+    /* ── Mobile: drop the corner controls into a centered row below the header ── */
+    @media (max-width: 600px) {
+      .header { order: -1; margin-top: 4px; }
+      .topbar-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin-bottom: 22px;
+      }
+      .nav-pill, .theme-toggle {
+        position: static;
+        top: auto; left: auto; right: auto;
+      }
+    }
+
     /* ── Header ── */
     .header {
       text-align: center;
@@ -905,18 +921,21 @@
 </head>
 <body>
 
-  <!-- Nav pill — fixed top-left → On the Water -->
-  <a class="nav-pill" href="on-the-water.html" title="Kayak &amp; paddleboard workouts and games">
-    <span class="nav-pill-icon">🛶</span>
-    <span>On the Water</span>
-  </a>
+  <!-- Top controls — fixed in corners on desktop, a centered row below the header on mobile -->
+  <div class="topbar-controls">
+    <!-- Nav pill → On the Water -->
+    <a class="nav-pill" href="on-the-water.html" title="Kayak &amp; paddleboard workouts and games">
+      <span class="nav-pill-icon">🛶</span>
+      <span>On the Water</span>
+    </a>
 
-  <!-- Theme toggle — fixed top-right -->
-  <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
-    <span class="theme-icon theme-icon-moon">🌙</span>
-    <span class="theme-icon theme-icon-sun">☀️</span>
-    <span class="theme-label" id="themeLabel">Dark</span>
-  </button>
+    <!-- Theme toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" type="button">
+      <span class="theme-icon theme-icon-moon">🌙</span>
+      <span class="theme-icon theme-icon-sun">☀️</span>
+      <span class="theme-label" id="themeLabel">Dark</span>
+    </button>
+  </div>
 
   <div class="header">
     <div class="header-top">
