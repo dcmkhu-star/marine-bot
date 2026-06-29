@@ -1221,10 +1221,23 @@
         + `&station=${station.id}&bin=${station.bin}`
         + `&units=${station.units}&begin_date=${begin}&range=96`
         + `&interval=MAX_SLACK&time_zone=lst_ldt`;
-      const r = await fetch(url);
-      const d = await r.json();
-      if (d.error) throw new Error(d.error.message || 'NOAA API error');
-      return d.current_predictions?.cp || [];
+      // NOAA's API intermittently returns 502/504 — retry a few times with backoff before giving up
+      const attempts = 3;
+      let lastErr;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const r = await fetch(url, { cache: 'no-store' });
+          if (!r.ok) throw new Error(`NOAA ${r.status}`);
+          const d = await r.json();
+          if (d.error) throw new Error(d.error.message || 'NOAA API error');
+          return d.current_predictions?.cp || [];
+        } catch (e) {
+          lastErr = e;
+          if (i < attempts - 1) await new Promise(res => setTimeout(res, 900 * (i + 1)));
+        }
+      }
+      console.error('NOAA currents failed:', lastErr);
+      throw new Error('NOAA currents service is busy right now — please try again in a moment.');
     }
 
     // ── Form wiring ──
@@ -1290,7 +1303,11 @@
         </div>`;
     }
     function renderError(msg) {
-      els.results.innerHTML = `<div class="card"><div class="error-box">&#9888; ${escapeHtml(msg)}</div></div>`;
+      els.results.innerHTML = `<div class="card"><div class="error-box">&#9888; ${escapeHtml(msg)}
+        <div style="margin-top:14px;"><button type="button" class="btn-now" id="btnRetry">&#8635; Try again</button></div>
+      </div></div>`;
+      const b = document.getElementById('btnRetry');
+      if (b) b.addEventListener('click', () => onSubmit());
     }
     function renderResult(wx, events, startKey, targetDate) {
       if (!events) { els.results.innerHTML = ''; return; }
