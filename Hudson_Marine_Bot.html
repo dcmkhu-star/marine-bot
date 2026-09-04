@@ -348,13 +348,21 @@
 
     /* ── Mobile: drop the corner controls into a centered row below the header ── */
     @media (max-width: 600px) {
-      .header { order: -1; margin-top: 4px; }
+      /* Stack: live clock -> title -> nav + theme -> station box -> form */
+      .ticker          { order: 1; margin-bottom: 24px; }
+      .header          { order: 2; margin-top: 0; }
+      .topbar-controls { order: 3; }
+      .station-block   { order: 4; }
+      .form-stack      { order: 5; }
+      .results         { order: 6; }
+      .foot            { order: 7; }
+
       .topbar-controls {
         display: flex;
         justify-content: center;
         gap: 10px;
         width: 100%;
-        margin-bottom: 22px;
+        margin: 16px 0 20px;
       }
       .nav-pill, .theme-toggle {
         position: static;
@@ -364,6 +372,12 @@
 
     /* ── Header ── */
     .header {
+      text-align: center;
+      margin-bottom: 0;
+      width: 100%;
+      max-width: var(--w-content);
+    }
+    .station-block {
       text-align: center;
       margin-bottom: 28px;
       width: 100%;
@@ -1390,6 +1404,9 @@
       <h1>Hudson Marine <em>Bot.</em></h1>
     </div>
     <p class="head-tagline">Tides &middot; current &middot; wind &mdash; before you launch</p>
+  </div>
+
+  <div class="station-block">
     <div class="station-pill" id="stationPill"></div>
     <div class="station-switcher" id="stationSwitcher">
       <button class="station-btn active" data-idx="0" type="button">Pier 92</button>
